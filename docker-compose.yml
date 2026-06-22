@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  # Serviço da Aplicação Web Full-Stack (Backend Express + Frontend React)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: CentralAcordosApp
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      # Credenciais do banco externo lidas diretamente do arquivo .env ou do host (VPS)
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DATABASE_URL=${DATABASE_URL}

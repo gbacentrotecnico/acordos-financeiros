@@ -1,0 +1,6 @@
+{
+  "name": "Central de Acordos Financeiros",
+  "description": "Sistema para controle centralizado de acordos financeiros internos (vendas de veículos, motos e empréstimos) com os colaboradores.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

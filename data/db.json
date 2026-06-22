@@ -1,0 +1,624 @@
+{
+  "colaboradores": [
+    {
+      "id": 1,
+      "nome": "Carlos Silva",
+      "cpf": "123.456.789-00",
+      "telefone": "(11) 98888-7777",
+      "loja": "Centro Técnico Matriz",
+      "cargo": "Mecânico Líder"
+    },
+    {
+      "id": 2,
+      "nome": "Mariana Costa",
+      "cpf": "987.654.321-11",
+      "telefone": "(11) 97777-6666",
+      "loja": "Auto Center filial Sul",
+      "cargo": "Vendedora de Peças"
+    },
+    {
+      "id": 3,
+      "nome": "Roberto Alves",
+      "cpf": "456.123.789-22",
+      "telefone": "(11) 96666-5555",
+      "loja": "Auto Center Norte",
+      "cargo": "Alinhador Chefe"
+    }
+  ],
+  "acordos": [
+    {
+      "id": 1,
+      "colaborador_id": 1,
+      "tipo": "veiculo_usado",
+      "descricao": "Venda do Chevrolet Celta 2012 cinza",
+      "valor_total": 18000,
+      "qtd_parcelas": 6,
+      "status": "ativo",
+      "data_acordo": "2026-04-10"
+    },
+    {
+      "id": 2,
+      "colaborador_id": 2,
+      "tipo": "emprestimo_vale",
+      "descricao": "Empréstimo emergencial para tratamento dentário",
+      "valor_total": 1500,
+      "qtd_parcelas": 3,
+      "status": "ativo",
+      "data_acordo": "2026-05-15"
+    },
+    {
+      "id": 3,
+      "colaborador_id": 1,
+      "tipo": "4 pneus",
+      "descricao": "",
+      "valor_total": 2000,
+      "qtd_parcelas": 4,
+      "status": "quitado",
+      "data_acordo": "2026-06-22",
+      "created_at": "2026-06-22T21:25:34.959Z"
+    },
+    {
+      "id": 4,
+      "colaborador_id": 1,
+      "tipo": "Moto Shineray",
+      "descricao": "",
+      "valor_total": 10000,
+      "qtd_parcelas": 20,
+      "status": "ativo",
+      "data_acordo": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.290Z"
+    },
+    {
+      "id": 5,
+      "colaborador_id": 1,
+      "tipo": "Acordo Geral",
+      "descricao": "AnotaÃ§Ãµes: (19/03) 20x",
+      "valor_total": 12000,
+      "qtd_parcelas": 20,
+      "status": "ativo",
+      "data_acordo": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.335Z"
+    }
+  ],
+  "parcelas": [
+    {
+      "id": 1,
+      "acordo_id": 1,
+      "numero_parcela": 1,
+      "valor": 3000,
+      "data_vencimento": "2026-05-10",
+      "status": "Descontado",
+      "data_desconto": "2026-05-09"
+    },
+    {
+      "id": 2,
+      "acordo_id": 1,
+      "numero_parcela": 2,
+      "valor": 3000,
+      "data_vencimento": "2026-06-10",
+      "status": "Descontado",
+      "data_desconto": "2026-06-08"
+    },
+    {
+      "id": 3,
+      "acordo_id": 1,
+      "numero_parcela": 3,
+      "valor": 3000,
+      "data_vencimento": "2026-07-10",
+      "status": "Pendente",
+      "data_desconto": null
+    },
+    {
+      "id": 4,
+      "acordo_id": 1,
+      "numero_parcela": 4,
+      "valor": 3000,
+      "data_vencimento": "2026-08-10",
+      "status": "Pendente",
+      "data_desconto": null
+    },
+    {
+      "id": 5,
+      "acordo_id": 1,
+      "numero_parcela": 5,
+      "valor": 3000,
+      "data_vencimento": "2026-09-10",
+      "status": "Pendente",
+      "data_desconto": null
+    },
+    {
+      "id": 6,
+      "acordo_id": 1,
+      "numero_parcela": 6,
+      "valor": 3000,
+      "data_vencimento": "2026-10-10",
+      "status": "Pendente",
+      "data_desconto": null
+    },
+    {
+      "id": 7,
+      "acordo_id": 2,
+      "numero_parcela": 1,
+      "valor": 500,
+      "data_vencimento": "2026-06-15",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22"
+    },
+    {
+      "id": 8,
+      "acordo_id": 2,
+      "numero_parcela": 2,
+      "valor": 500,
+      "data_vencimento": "2026-07-15",
+      "status": "Pendente",
+      "data_desconto": null
+    },
+    {
+      "id": 9,
+      "acordo_id": 2,
+      "numero_parcela": 3,
+      "valor": 500,
+      "data_vencimento": "2026-08-15",
+      "status": "Pendente",
+      "data_desconto": null
+    },
+    {
+      "id": 10,
+      "acordo_id": 3,
+      "numero_parcela": 1,
+      "valor": 500,
+      "data_vencimento": "2026-02-21",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:34.959Z"
+    },
+    {
+      "id": 11,
+      "acordo_id": 3,
+      "numero_parcela": 2,
+      "valor": 500,
+      "data_vencimento": "2026-02-28",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:34.959Z"
+    },
+    {
+      "id": 12,
+      "acordo_id": 3,
+      "numero_parcela": 3,
+      "valor": 500,
+      "data_vencimento": "2026-03-07",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:34.960Z"
+    },
+    {
+      "id": 13,
+      "acordo_id": 3,
+      "numero_parcela": 4,
+      "valor": 500,
+      "data_vencimento": "2026-03-14",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:34.960Z"
+    },
+    {
+      "id": 14,
+      "acordo_id": 4,
+      "numero_parcela": 1,
+      "valor": 500,
+      "data_vencimento": "2026-02-21",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.290Z"
+    },
+    {
+      "id": 15,
+      "acordo_id": 4,
+      "numero_parcela": 2,
+      "valor": 500,
+      "data_vencimento": "2026-02-28",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.290Z"
+    },
+    {
+      "id": 16,
+      "acordo_id": 4,
+      "numero_parcela": 3,
+      "valor": 500,
+      "data_vencimento": "2026-03-07",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.290Z"
+    },
+    {
+      "id": 17,
+      "acordo_id": 4,
+      "numero_parcela": 4,
+      "valor": 500,
+      "data_vencimento": "2026-03-14",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.291Z"
+    },
+    {
+      "id": 18,
+      "acordo_id": 4,
+      "numero_parcela": 5,
+      "valor": 500,
+      "data_vencimento": "2026-03-21",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.291Z"
+    },
+    {
+      "id": 19,
+      "acordo_id": 4,
+      "numero_parcela": 6,
+      "valor": 500,
+      "data_vencimento": "2026-03-28",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.291Z"
+    },
+    {
+      "id": 20,
+      "acordo_id": 4,
+      "numero_parcela": 7,
+      "valor": 500,
+      "data_vencimento": "2026-04-04",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.291Z"
+    },
+    {
+      "id": 21,
+      "acordo_id": 4,
+      "numero_parcela": 8,
+      "valor": 500,
+      "data_vencimento": "2026-04-11",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.291Z"
+    },
+    {
+      "id": 22,
+      "acordo_id": 4,
+      "numero_parcela": 9,
+      "valor": 500,
+      "data_vencimento": "2026-04-18",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.291Z"
+    },
+    {
+      "id": 23,
+      "acordo_id": 4,
+      "numero_parcela": 10,
+      "valor": 500,
+      "data_vencimento": "2026-04-25",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.291Z"
+    },
+    {
+      "id": 24,
+      "acordo_id": 4,
+      "numero_parcela": 11,
+      "valor": 500,
+      "data_vencimento": "2026-05-02",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.291Z"
+    },
+    {
+      "id": 25,
+      "acordo_id": 4,
+      "numero_parcela": 12,
+      "valor": 500,
+      "data_vencimento": "2026-05-09",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.291Z"
+    },
+    {
+      "id": 26,
+      "acordo_id": 4,
+      "numero_parcela": 13,
+      "valor": 500,
+      "data_vencimento": "2026-05-16",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.291Z"
+    },
+    {
+      "id": 27,
+      "acordo_id": 4,
+      "numero_parcela": 14,
+      "valor": 500,
+      "data_vencimento": "2026-05-23",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.291Z"
+    },
+    {
+      "id": 28,
+      "acordo_id": 4,
+      "numero_parcela": 15,
+      "valor": 500,
+      "data_vencimento": "2026-05-30",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.291Z"
+    },
+    {
+      "id": 29,
+      "acordo_id": 4,
+      "numero_parcela": 16,
+      "valor": 500,
+      "data_vencimento": "2026-06-06",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.291Z"
+    },
+    {
+      "id": 30,
+      "acordo_id": 4,
+      "numero_parcela": 17,
+      "valor": 500,
+      "data_vencimento": "2026-06-13",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.291Z"
+    },
+    {
+      "id": 31,
+      "acordo_id": 4,
+      "numero_parcela": 18,
+      "valor": 500,
+      "data_vencimento": "2026-06-20",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.291Z"
+    },
+    {
+      "id": 32,
+      "acordo_id": 4,
+      "numero_parcela": 19,
+      "valor": 500,
+      "data_vencimento": "2026-06-27",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-22T21:25:36.291Z"
+    },
+    {
+      "id": 33,
+      "acordo_id": 4,
+      "numero_parcela": 20,
+      "valor": 500,
+      "data_vencimento": "2026-07-04",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-22T21:25:36.291Z"
+    },
+    {
+      "id": 34,
+      "acordo_id": 5,
+      "numero_parcela": 1,
+      "valor": 600,
+      "data_vencimento": "2026-03-21",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.335Z"
+    },
+    {
+      "id": 35,
+      "acordo_id": 5,
+      "numero_parcela": 2,
+      "valor": 600,
+      "data_vencimento": "2026-03-28",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.335Z"
+    },
+    {
+      "id": 36,
+      "acordo_id": 5,
+      "numero_parcela": 3,
+      "valor": 600,
+      "data_vencimento": "2026-04-04",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.335Z"
+    },
+    {
+      "id": 37,
+      "acordo_id": 5,
+      "numero_parcela": 4,
+      "valor": 600,
+      "data_vencimento": "2026-04-11",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.335Z"
+    },
+    {
+      "id": 38,
+      "acordo_id": 5,
+      "numero_parcela": 5,
+      "valor": 600,
+      "data_vencimento": "2026-04-18",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.335Z"
+    },
+    {
+      "id": 39,
+      "acordo_id": 5,
+      "numero_parcela": 6,
+      "valor": 600,
+      "data_vencimento": "2026-04-25",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.335Z"
+    },
+    {
+      "id": 40,
+      "acordo_id": 5,
+      "numero_parcela": 7,
+      "valor": 600,
+      "data_vencimento": "2026-05-02",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.335Z"
+    },
+    {
+      "id": 41,
+      "acordo_id": 5,
+      "numero_parcela": 8,
+      "valor": 600,
+      "data_vencimento": "2026-05-09",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.335Z"
+    },
+    {
+      "id": 42,
+      "acordo_id": 5,
+      "numero_parcela": 9,
+      "valor": 600,
+      "data_vencimento": "2026-05-16",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.335Z"
+    },
+    {
+      "id": 43,
+      "acordo_id": 5,
+      "numero_parcela": 10,
+      "valor": 600,
+      "data_vencimento": "2026-05-23",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.335Z"
+    },
+    {
+      "id": 44,
+      "acordo_id": 5,
+      "numero_parcela": 11,
+      "valor": 600,
+      "data_vencimento": "2026-05-30",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.335Z"
+    },
+    {
+      "id": 45,
+      "acordo_id": 5,
+      "numero_parcela": 12,
+      "valor": 600,
+      "data_vencimento": "2026-06-06",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.335Z"
+    },
+    {
+      "id": 46,
+      "acordo_id": 5,
+      "numero_parcela": 13,
+      "valor": 600,
+      "data_vencimento": "2026-06-13",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.335Z"
+    },
+    {
+      "id": 47,
+      "acordo_id": 5,
+      "numero_parcela": 14,
+      "valor": 600,
+      "data_vencimento": "2026-06-20",
+      "status": "Descontado",
+      "data_desconto": "2026-06-22",
+      "created_at": "2026-06-22T21:25:36.335Z"
+    },
+    {
+      "id": 48,
+      "acordo_id": 5,
+      "numero_parcela": 15,
+      "valor": 600,
+      "data_vencimento": "2026-06-27",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-22T21:25:36.335Z"
+    },
+    {
+      "id": 49,
+      "acordo_id": 5,
+      "numero_parcela": 16,
+      "valor": 600,
+      "data_vencimento": "2026-07-04",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-22T21:25:36.335Z"
+    },
+    {
+      "id": 50,
+      "acordo_id": 5,
+      "numero_parcela": 17,
+      "valor": 600,
+      "data_vencimento": "2026-07-11",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-22T21:25:36.335Z"
+    },
+    {
+      "id": 51,
+      "acordo_id": 5,
+      "numero_parcela": 18,
+      "valor": 600,
+      "data_vencimento": "2026-07-18",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-22T21:25:36.335Z"
+    },
+    {
+      "id": 52,
+      "acordo_id": 5,
+      "numero_parcela": 19,
+      "valor": 600,
+      "data_vencimento": "2026-07-25",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-22T21:25:36.335Z"
+    },
+    {
+      "id": 53,
+      "acordo_id": 5,
+      "numero_parcela": 20,
+      "valor": 600,
+      "data_vencimento": "2026-08-01",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-22T21:25:36.335Z"
+    }
+  ],
+  "usuarios": [
+    {
+      "id": 1,
+      "nome": "Gestão de Finanças",
+      "email": "admin@grupoabucci.com.br",
+      "senha_hash": "$2b$10$28tCd99bQCHwpJDYjLShhOiau5mRD5Xs6JxdA.C.M5z1iPgGaNK/S",
+      "role": "master",
+      "created_at": "2026-06-22T20:51:09.633Z"
+    },
+    {
+      "id": 2,
+      "nome": "Leandro",
+      "email": "leandro@grupoabucci.com.br",
+      "senha_hash": "$2b$10$pHLe3RysaoQkVI1Q4p.eqeE3mxB7nrVcZiiYf3ghlVYvldnKMWMLm",
+      "role": "master",
+      "created_at": "2026-06-22T21:33:05.275Z"
+    }
+  ]
+}
