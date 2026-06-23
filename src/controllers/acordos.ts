@@ -5,10 +5,18 @@ import { CreateAcordoDTO, Parcela } from '../types.ts';
 /**
  * Helper para calcular datas de vencimento mensais consecutivas
  */
-function getNextMonthlyDueDate(baseDateStr: string, monthsToAdd: number): string {
-  // Cria a data usando meio-dia local para se livrar de flutuações de fuso horário
+function getNextDueDate(baseDateStr: string, index: number, periodicidade: 'semanal' | 'quinzenal' | 'mensal'): string {
   const d = new Date(baseDateStr + 'T12:00:00');
-  d.setMonth(d.getMonth() + monthsToAdd);
+  
+  // index is 0-based for additions (first parcel is index=0, so adds 0)
+  if (periodicidade === 'semanal') {
+    d.setDate(d.getDate() + (index * 7));
+  } else if (periodicidade === 'quinzenal') {
+    d.setDate(d.getDate() + (index * 15));
+  } else {
+    // mensal
+    d.setMonth(d.getMonth() + index);
+  }
   
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -70,7 +78,7 @@ export const AcordosController = {
    */
   create: async (req: Request, res: Response) => {
     try {
-      const { colaborador_id, tipo, descricao, valor_total, qtd_parcelas, data_acordo } = req.body as CreateAcordoDTO;
+      const { colaborador_id, tipo, descricao, valor_total, qtd_parcelas, data_acordo, periodicidade, data_primeiro_vencimento } = req.body as CreateAcordoDTO;
 
       // Validações básicas
       if (!colaborador_id) {
@@ -84,6 +92,13 @@ export const AcordosController = {
       }
       if (!qtd_parcelas || qtd_parcelas <= 0) {
         return res.status(400).json({ success: false, error: 'A quantidade de parcelas deve ser maior que zero.' });
+      }
+
+      if (!periodicidade || !['semanal', 'quinzenal', 'mensal'].includes(periodicidade)) {
+        return res.status(400).json({ success: false, error: 'A periodicidade deve ser semanal, quinzenal ou mensal.' });
+      }
+      if (!data_primeiro_vencimento || !/^\d{4}-\d{2}-\d{2}$/.test(data_primeiro_vencimento)) {
+        return res.status(400).json({ success: false, error: 'A data do primeiro vencimento é obrigatória e deve ser válida.' });
       }
 
       const dataBaseValida = data_acordo && /^\d{4}-\d{2}-\d{2}$/.test(data_acordo)
@@ -104,7 +119,7 @@ export const AcordosController = {
           : parcelaBaseCentavos;
 
         const valorFinal = valorParcelaCentavos / 100;
-        const vencimento = getNextMonthlyDueDate(dataBaseValida, i); // Primeira vence em +30 dias (1 mês)
+        const vencimento = getNextDueDate(data_primeiro_vencimento, i - 1, periodicidade);
 
         parcelasInput.push({
           numero_parcela: i,

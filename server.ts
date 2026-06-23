@@ -7,6 +7,7 @@ import { ParcelasController } from './src/controllers/parcelas.ts';
 import { ImportacaoController } from './src/controllers/importacao.ts';
 import { AuthController } from './src/controllers/auth.ts';
 import { UsuariosController } from './src/controllers/usuarios.ts';
+import { LojasController } from './src/controllers/lojas.ts';
 import { RankingController } from './src/controllers/ranking.ts';
 import { authMiddleware, roleMiddleware } from './src/middlewares/authMiddleware.ts';
 import multer from 'multer';
@@ -34,6 +35,12 @@ async function startServer() {
   app.get('/api/usuarios', authMiddleware, roleMiddleware(['master']), UsuariosController.list);
   app.post('/api/usuarios', authMiddleware, roleMiddleware(['master']), UsuariosController.create);
   app.delete('/api/usuarios/:id', authMiddleware, roleMiddleware(['master']), UsuariosController.delete);
+
+  // 1.5 Lojas (Protegida)
+  app.get('/api/lojas', authMiddleware, LojasController.list);
+  app.post('/api/lojas', authMiddleware, roleMiddleware(['master']), LojasController.create);
+  app.put('/api/lojas/:id', authMiddleware, roleMiddleware(['master']), LojasController.update);
+  app.delete('/api/lojas/:id', authMiddleware, roleMiddleware(['master']), LojasController.delete);
 
   // 2. Colaboradores (Protegida)
   app.get('/api/colaboradores', authMiddleware, ColaboradoresController.list);

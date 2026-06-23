@@ -54,6 +54,7 @@ export default function ExecutiveDashboard({
   const [exportingBI, setExportingBI] = useState(false);
   const [exportResult, setExportResult] = useState<string | null>(null);
   const [selectedLojaFilter, setSelectedLojaFilter] = useState<string>('todas');
+  const [previsaoFilter, setPrevisaoFilter] = useState<'hoje' | 'semana' | 'mes'>('mes');
 
   // --- CÁLCULO DE MÉTRICAS ANALÍTICAS DO GRUPO (BI DADOS) ---
   // 1. Distribuição por tipo de acordo (Dinheiro na rua)
@@ -114,7 +115,7 @@ export default function ExecutiveDashboard({
       indicadores_globais: {
         total_recursos_na_rua: indicadores.saldoDevedorTotal,
         total_amortizado_grupo: indicadores.totalAmortizado,
-        previsao_recebimento_corrente: indicadores.previsaoMesAtual,
+        previsao_recebimento_corrente: indicadores.previsao.mes,
         taxa_inadimplencia_percentual: indicadores.saldoDevedorTotal 
           ? ((indicadores.alertasAtraso.reduce((sum, a) => sum + a.valor, 0) / indicadores.saldoDevedorTotal) * 100).toFixed(2)
           : '0.00'
@@ -231,20 +232,41 @@ export default function ExecutiveDashboard({
           </div>
         </div>
 
-        {/* Pergunta 2: Quanto entra este mês? */}
+        {/* Pergunta 2: Quanto entra no período filtrado? */}
         <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm relative overflow-hidden flex flex-col justify-between h-44 hover:shadow-md transition-shadow">
           <div>
             <div className="flex justify-between items-start text-emerald-600">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Fluxo Recorrente Estimado</span>
-              <Calendar className="h-5 w-5 text-emerald-555" />
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Previsão de Entradas</span>
+              <Calendar className="h-5 w-5 text-emerald-500" />
             </div>
-            <h4 className="text-xs text-slate-600 font-extrabold mt-4 font-medium">P2: Quanto entra de recebimento garantido este mês por desconto em folha?</h4>
-            <div className="text-2xl font-black text-slate-900 mt-2">
-              {formatCurrency(indicadores.previsaoMesAtual)}
+            
+            <div className="flex gap-1 mt-3 mb-1">
+              <button 
+                onClick={() => setPrevisaoFilter('hoje')} 
+                className={`text-[10px] px-2 py-0.5 font-bold rounded ${previsaoFilter === 'hoje' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'}`}
+              >
+                Hoje
+              </button>
+              <button 
+                onClick={() => setPrevisaoFilter('semana')} 
+                className={`text-[10px] px-2 py-0.5 font-bold rounded ${previsaoFilter === 'semana' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'}`}
+              >
+                Esta Semana
+              </button>
+              <button 
+                onClick={() => setPrevisaoFilter('mes')} 
+                className={`text-[10px] px-2 py-0.5 font-bold rounded ${previsaoFilter === 'mes' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'}`}
+              >
+                Este Mês
+              </button>
+            </div>
+
+            <div className="text-2xl font-black text-slate-900 mt-1">
+              {formatCurrency(indicadores.previsao[previsaoFilter])}
             </div>
           </div>
-          <div className="text-[10px] text-emerald-600 mt-2 font-medium">
-            ↑ Próximo Desconto Consolidado em Folha de Pagamentos
+          <div className="text-[10px] text-emerald-600 mt-2 font-medium flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span> Receitas baseadas nos vencimentos originais
           </div>
         </div>
 

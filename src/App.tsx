@@ -25,13 +25,14 @@ import {
   FileSpreadsheet,
   Loader2
 } from 'lucide-react';
-import { Colaborador, Acordo, Parcela, DashboardIndicadores, TipoAcordo } from './types.ts';
+import { Colaborador, Acordo, Parcela, DashboardIndicadores, TipoAcordo, Loja } from './types.ts';
 import ExecutiveDashboard from './components/ExecutiveDashboard.tsx';
 import ImportModal from './components/ImportModal.tsx';
 import Login from './components/Login.tsx';
 import UsersManager from './components/UsersManager.tsx';
 import QuitadosArchive from './components/QuitadosArchive.tsx';
 import RankingBoard from './components/RankingBoard.tsx';
+import LojasManager from './components/LojasManager.tsx';
 import { useAuth } from './contexts/AuthContext.tsx';
 import { LogOut, Settings } from 'lucide-react';
 
@@ -71,6 +72,7 @@ export default function App() {
   const [acordos, setAcordos] = useState<Acordo[]>([]);
   const [selectedAcordo, setSelectedAcordo] = useState<Acordo | null>(null);
   const [parcelas, setParcelas] = useState<Parcela[]>([]);
+  const [lojas, setLojas] = useState<Loja[]>([]);
   const [indicadores, setIndicadores] = useState<DashboardIndicadores>({
     saldoDevedorTotal: 0,
     totalAmortizado: 0,
@@ -96,7 +98,7 @@ export default function App() {
     nome: '',
     cpf: '',
     telefone: '',
-    loja: 'Centro Técnico Matriz',
+    loja: '',
     cargo: ''
   });
 
@@ -107,7 +109,9 @@ export default function App() {
     descricao: '',
     valor_total: '',
     qtd_parcelas: '1',
-    data_acordo: new Date().toISOString().split('T')[0]
+    data_acordo: new Date().toISOString().split('T')[0],
+    periodicidade: 'mensal' as 'semanal'|'quinzenal'|'mensal',
+    data_primeiro_vencimento: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // default +30 dias
   });
 
   // --- CARREGAMENTO DE DADOS ---
@@ -136,6 +140,13 @@ export default function App() {
       const acJson = await acRes.json();
       if (acJson.success) {
         setAcordos(acJson.data);
+      }
+
+      // 4. Lojas
+      const lojasRes = await fetch('/api/lojas', { headers });
+      const lojasJson = await lojasRes.json();
+      if (lojasJson.success) {
+        setLojas(lojasJson.data);
       }
 
       // Se houver acordo selecionado ativo, recarrega suas parcelas
@@ -188,6 +199,7 @@ export default function App() {
     if (!formColab.nome.trim()) return setErrorMsg('O nome é obrigatório.');
     if (!formColab.cpf.trim()) return setErrorMsg('O CPF é obrigatório.');
     if (!formColab.telefone.trim()) return setErrorMsg('O número de telefone/WhatsApp é obrigatório.');
+    if (!formColab.loja) return setErrorMsg('A loja é obrigatória.');
     if (!formColab.cargo.trim()) return setErrorMsg('O cargo é obrigatório.');
 
     try {
@@ -203,7 +215,7 @@ export default function App() {
 
       if (data.success) {
         setSuccessMsg('Colaborador cadastrado com sucesso!');
-        setFormColab({ nome: '', cpf: '', telefone: '', loja: 'Centro Técnico Matriz', cargo: '' });
+        setFormColab({ nome: '', cpf: '', telefone: '', loja: '', cargo: '' });
         setModalColaboradorOpen(false);
         fetchAllData();
       } else {
@@ -240,7 +252,9 @@ export default function App() {
           descricao: formAcordo.descricao,
           valor_total: valTotal,
           qtd_parcelas: qtdParc,
-          data_acordo: formAcordo.data_acordo
+          data_acordo: formAcordo.data_acordo,
+          periodicidade: formAcordo.periodicidade,
+          data_primeiro_vencimento: formAcordo.data_primeiro_vencimento
         })
       });
       const data = await res.json();
@@ -253,7 +267,9 @@ export default function App() {
           descricao: '',
           valor_total: '',
           qtd_parcelas: '1',
-          data_acordo: new Date().toISOString().split('T')[0]
+          data_acordo: new Date().toISOString().split('T')[0],
+          periodicidade: 'mensal',
+          data_primeiro_vencimento: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
         });
         setModalAcordoOpen(false);
         fetchAllData();
@@ -428,7 +444,10 @@ export default function App() {
         </div>
 
         {activeTab === 'config' && user.role === 'master' ? (
-          <UsersManager />
+          <div>
+            <UsersManager />
+            <LojasManager />
+          </div>
         ) : activeTab === 'executivo' ? (
           /* DASHBOARD EXECUTIVO ISOLADO (DEDICADO AO PROPONENTO) */
           <ExecutiveDashboard 
@@ -795,10 +814,10 @@ export default function App() {
                   onChange={(e) => setFormColab(prev => ({ ...prev, loja: e.target.value }))}
                   className="w-full px-3.5 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
-                  <option value="Centro Técnico Matriz">Centro Técnico Matriz</option>
-                  <option value="Auto Center filial Sul">Auto Center filial Sul</option>
-                  <option value="Auto Center Norte">Auto Center Norte</option>
-                  <option value="Auto Center Distribuidora">Auto Center Distribuidora</option>
+                  <option value="" disabled>-- Selecione a Loja --</option>
+                  {lojas.map(loja => (
+                    <option key={loja.id} value={loja.nome}>{loja.nome}</option>
+                  ))}
                 </select>
               </div>
 
@@ -889,6 +908,32 @@ export default function App() {
                     required
                     value={formAcordo.data_acordo}
                     onChange={(e) => setFormAcordo(prev => ({ ...prev, data_acordo: e.target.value }))}
+                    className="w-full px-3.5 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-600"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Periodicidade</label>
+                  <select 
+                    value={formAcordo.periodicidade}
+                    onChange={(e) => setFormAcordo(prev => ({ ...prev, periodicidade: e.target.value as any }))}
+                    className="w-full px-3.5 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="semanal">Semanal</option>
+                    <option value="quinzenal">Quinzenal</option>
+                    <option value="mensal">Mensal</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">1º Vencimento</label>
+                  <input 
+                    type="date" 
+                    required
+                    value={formAcordo.data_primeiro_vencimento}
+                    onChange={(e) => setFormAcordo(prev => ({ ...prev, data_primeiro_vencimento: e.target.value }))}
                     className="w-full px-3.5 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-600"
                   />
                 </div>

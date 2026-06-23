@@ -2,7 +2,7 @@ import pg from 'pg';
 import fs from 'fs';
 import path from 'path';
 import bcrypt from 'bcryptjs';
-import { Colaborador, Acordo, Parcela, DashboardIndicadores, Usuario } from '../types.ts';
+import { Colaborador, Acordo, Parcela, DashboardIndicadores, Usuario, Loja } from '../types.ts';
 
 const { Pool } = pg;
 
@@ -48,6 +48,12 @@ if (usePostgres) {
             email VARCHAR(100) UNIQUE,
             senha_hash VARCHAR(255),
             role VARCHAR(50),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          );
+          CREATE TABLE IF NOT EXISTS lojas (
+            id SERIAL PRIMARY KEY,
+            nome VARCHAR(150),
+            endereco TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
           );
           CREATE TABLE IF NOT EXISTS colaboradores (
@@ -117,6 +123,7 @@ const FILE_DB_PATH = path.join(FILE_DB_DIR, 'db.json');
 
 interface LocalDatabase {
   usuarios: Usuario[];
+  lojas: Loja[];
   colaboradores: Colaborador[];
   acordos: Acordo[];
   parcelas: Parcela[];
@@ -143,6 +150,7 @@ function ensureLocalDb() {
           created_at: new Date().toISOString()
         }
       ],
+      lojas: [],
       colaboradores: [],
       acordos: [],
       parcelas: []
@@ -174,6 +182,12 @@ function readLocalDb(): LocalDatabase {
       writeLocalDb(db);
     }
     
+    // Fallback para lojas caso não exista
+    if (!db.lojas) {
+      db.lojas = [];
+      writeLocalDb(db);
+    }
+    
     return db;
   } catch (err) {
     console.error('Erro de leitura do DB local JSON, recriando...', err);
@@ -190,6 +204,72 @@ function writeLocalDb(data: LocalDatabase) {
 // === MODELOS/QUERIES UNIFICADAS (Escolhe PostgreSQL ou Local-JSON dinamicamente) ===
 
 export const Repo = {
+  // --- SEGMENTO DE LOJAS ---
+
+  getLojas: async (): Promise<Loja[]> => {
+    if (usePostgres && pool) {
+      const sql = 'SELECT id, nome, endereco, created_at FROM lojas ORDER BY nome ASC';
+      try {
+        const { rows } = await pool.query(sql);
+        return rows;
+      } catch (err) {
+        console.error('Erro ao listar lojas:', err);
+        return [];
+      }
+    } else {
+      const db = readLocalDb();
+      return [...db.lojas].sort((a, b) => a.nome.localeCompare(b.nome));
+    }
+  },
+
+  createLoja: async (nome: string, endereco: string): Promise<Loja> => {
+    if (usePostgres && pool) {
+      const sql = `
+        INSERT INTO lojas (nome, endereco)
+        VALUES ($1, $2)
+        RETURNING id, nome, endereco, created_at
+      `;
+      const { rows } = await pool.query(sql, [nome, endereco]);
+      return rows[0];
+    } else {
+      const db = readLocalDb();
+      const id = db.lojas.length > 0 ? Math.max(...db.lojas.map(l => l.id)) + 1 : 1;
+      const novaLoja: Loja = { id, nome, endereco, created_at: new Date().toISOString() };
+      db.lojas.push(novaLoja);
+      writeLocalDb(db);
+      return novaLoja;
+    }
+  },
+
+  updateLoja: async (id: number, nome: string, endereco: string): Promise<Loja> => {
+    if (usePostgres && pool) {
+      const sql = `
+        UPDATE lojas SET nome = $1, endereco = $2 WHERE id = $3
+        RETURNING id, nome, endereco, created_at
+      `;
+      const { rows } = await pool.query(sql, [nome, endereco, id]);
+      if (rows.length === 0) throw new Error('Loja não encontrada');
+      return rows[0];
+    } else {
+      const db = readLocalDb();
+      const index = db.lojas.findIndex(l => l.id === id);
+      if (index === -1) throw new Error('Loja não encontrada');
+      db.lojas[index] = { ...db.lojas[index], nome, endereco };
+      writeLocalDb(db);
+      return db.lojas[index];
+    }
+  },
+
+  deleteLoja: async (id: number): Promise<void> => {
+    if (usePostgres && pool) {
+      await pool.query('DELETE FROM lojas WHERE id = $1', [id]);
+    } else {
+      const db = readLocalDb();
+      db.lojas = db.lojas.filter(l => l.id !== id);
+      writeLocalDb(db);
+    }
+  },
+
   // --- SEGMENTO DE USUARIOS (AUTH) ---
   
   getUsuarioByEmail: async (email: string): Promise<Usuario | null> => {
@@ -574,16 +654,29 @@ export const Repo = {
         const { rows: amRows } = await pool.query(amortizadoSql);
         const totalAmortizado = amRows[0].total;
 
-        // 3. Previsão do Mês Atual (Soma das parcelas com vencimento no mês atual independente do status, ou opcionalmente todas as do mês)
-        // Vamos buscar parcelas com vencimento no mês atual
+        // 3. Previsão de Entradas (Hoje, Esta Semana, Este Mês)
+        const dateHoje = dataHojeStr;
+        
+        const previsaoHojeSql = "SELECT COALESCE(SUM(valor), 0)::float AS total FROM parcelas WHERE TO_CHAR(data_vencimento, 'YYYY-MM-DD') = $1";
+        const { rows: pHoje } = await pool.query(previsaoHojeSql, [dateHoje]);
+        const previsaoHoje = pHoje[0].total;
+
+        const previsaoSemanaSql = `
+          SELECT COALESCE(SUM(valor), 0)::float AS total 
+          FROM parcelas 
+          WHERE TO_CHAR(data_vencimento, 'IYYY-IW') = TO_CHAR(CURRENT_DATE, 'IYYY-IW')
+        `;
+        const { rows: pSemana } = await pool.query(previsaoSemanaSql);
+        const previsaoSemana = pSemana[0].total;
+
         const anoMesAtual = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
-        const previsaoSql = `
+        const previsaoMesSql = `
           SELECT COALESCE(SUM(valor), 0)::float AS total 
           FROM parcelas 
           WHERE TO_CHAR(data_vencimento, 'YYYY-MM') = $1
         `;
-        const { rows: prevRows } = await pool.query(previsaoSql, [anoMesAtual]);
-        const previsaoMesAtual = prevRows[0].total;
+        const { rows: pMes } = await pool.query(previsaoMesSql, [anoMesAtual]);
+        const previsaoMesAtual = pMes[0].total;
 
         // 4. Alertas de Parcelas em Atraso (Vencidas, status 'Pendente', vencimento < HOJE)
         const alertasSql = `
@@ -608,7 +701,11 @@ export const Repo = {
         return {
           saldoDevedorTotal,
           totalAmortizado,
-          previsaoMesAtual,
+          previsao: {
+            hoje: previsaoHoje,
+            semana: previsaoSemana,
+            mes: previsaoMesAtual
+          },
           alertasAtraso: alertasRows,
         };
       } catch (err) {
@@ -630,15 +727,45 @@ export const Repo = {
         .filter(p => p.status === 'Descontado')
         .reduce((sum, p) => sum + p.valor, 0);
 
-      // 3. Previsão do Mês Atual (Parcelas cujo vencimento cai no mês atual)
-      const mesAtual = new Date().getMonth();
-      const anoAtual = new Date().getFullYear();
-      const previsaoMesAtual = db.parcelas
-        .filter(p => {
-          const vDate = new Date(p.data_vencimento);
-          return vDate.getMonth() === mesAtual && vDate.getFullYear() === anoAtual;
-        })
-        .reduce((sum, p) => sum + p.valor, 0);
+      // 3. Previsão (Hoje, Semana, Mês)
+      // Definindo início e fim da semana (Domingo a Sábado)
+      const dayOfWeek = hoje.getDay(); // 0 (Sun) to 6 (Sat)
+      const startOfWeek = new Date(hoje);
+      startOfWeek.setDate(hoje.getDate() - dayOfWeek);
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+      const mesAtual = hoje.getMonth();
+      const anoAtual = hoje.getFullYear();
+
+      let previsaoHoje = 0;
+      let previsaoSemana = 0;
+      let previsaoMesAtual = 0;
+
+      db.parcelas.forEach(p => {
+        const vDate = new Date(p.data_vencimento);
+        vDate.setHours(12, 0, 0, 0); // Meio dia para não pular de dia no fuso horário local
+        const pYear = vDate.getFullYear();
+        const pMonth = vDate.getMonth();
+        const pDate = vDate.getDate();
+
+        // Hoje
+        if (pYear === anoAtual && pMonth === mesAtual && pDate === hoje.getDate()) {
+          previsaoHoje += p.valor;
+        }
+
+        // Mês
+        if (pYear === anoAtual && pMonth === mesAtual) {
+          previsaoMesAtual += p.valor;
+        }
+
+        // Semana
+        const testDate = new Date(pYear, pMonth, pDate);
+        testDate.setHours(12, 0, 0, 0);
+        if (testDate.getTime() >= startOfWeek.getTime() && testDate.getTime() <= endOfWeek.getTime() + (24*60*60*1000 - 1)) {
+          previsaoSemana += p.valor;
+        }
+      });
 
       // 4. Alertas de atraso (Vencimento menor que hoje, status 'Pendente')
       const alertasAtraso = db.parcelas
@@ -675,7 +802,11 @@ export const Repo = {
       return {
         saldoDevedorTotal,
         totalAmortizado,
-        previsaoMesAtual,
+        previsao: {
+          hoje: previsaoHoje,
+          semana: previsaoSemana,
+          mes: previsaoMesAtual
+        },
         alertasAtraso
       };
     }

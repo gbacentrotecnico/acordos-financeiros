@@ -11,6 +11,13 @@ export interface Usuario {
   created_at?: string | Date;
 }
 
+export interface Loja {
+  id: number;
+  nome: string;
+  endereco: string;
+  created_at?: string | Date;
+}
+
 export interface Colaborador {
   id: number;
   nome: string;
@@ -60,20 +67,31 @@ export interface CreateColaboradorDTO {
   cargo: string;
 }
 
+export interface CreateLojaDTO {
+  nome: string;
+  endereco: string;
+}
+
 export interface CreateAcordoDTO {
   colaborador_id: number;
   tipo: TipoAcordo;
-  descricao: string;
+  descricao?: string;
   valor_total: number;
   qtd_parcelas: number;
-  data_acordo?: string; // formato YYYY-MM-DD
+  data_acordo?: string;
+  periodicidade: 'semanal' | 'quinzenal' | 'mensal';
+  data_primeiro_vencimento: string;
 }
 
 // Interface de resposta dos Indicadores do Dashboard
 export interface DashboardIndicadores {
   saldoDevedorTotal: number;
   totalAmortizado: number;
-  previsaoMesAtual: number;
+  previsao: {
+    hoje: number;
+    semana: number;
+    mes: number;
+  };
   alertasAtraso: {
     parcela_id: number;
     acordo_id: number;

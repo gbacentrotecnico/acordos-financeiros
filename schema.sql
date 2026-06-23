@@ -11,6 +11,14 @@ CREATE TABLE IF NOT EXISTS usuarios (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 1.5 Tabela de Lojas
+CREATE TABLE IF NOT EXISTS lojas (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(150) NOT NULL,
+    endereco TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- 2. Tabela de Colaboradores
 CREATE TABLE IF NOT EXISTS colaboradores (
     id SERIAL PRIMARY KEY,
