@@ -331,8 +331,8 @@ export default function App() {
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="bg-indigo-600 p-2.5 rounded-xl text-white shadow-md shadow-indigo-100 flex items-center justify-center">
-              <Building className="h-6 w-6" id="header_icon" />
+            <div className="flex items-center justify-center mr-2">
+              <img src="/Logo.png" alt="Logo Grupo Abucci" className="h-12 w-auto object-contain" />
             </div>
             <div>
               <h1 className="text-xl font-bold text-slate-900 tracking-tight">Central de Acordos Financeiros</h1>

@@ -38,10 +38,12 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-[url('https://images.unsplash.com/photo-1550684376-efcbd6e3f031?auto=format&fit=crop&q=80')] bg-cover bg-center bg-blend-overlay">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-          <div className="bg-indigo-600 p-3 rounded-2xl shadow-lg ring-1 ring-white/10">
-            <ShieldCheck className="w-12 h-12 text-white" />
-          </div>
+        <div className="flex justify-center mb-6">
+          <img 
+            src="/Logo.png" 
+            alt="Grupo Abucci Logo" 
+            className="h-24 w-auto object-contain drop-shadow-2xl" 
+          />
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-white tracking-tight">
           Grupo Abucci
