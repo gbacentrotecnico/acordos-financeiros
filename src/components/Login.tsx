@@ -42,12 +42,9 @@ export default function Login() {
           <img 
             src="/Logo.png" 
             alt="Grupo Abucci Logo" 
-            className="h-24 w-auto object-contain drop-shadow-2xl" 
+            className="h-36 w-auto object-contain drop-shadow-2xl" 
           />
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-white tracking-tight">
-          Grupo Abucci
-        </h2>
         <p className="mt-2 text-center text-sm text-slate-300">
           Central de Acordos Financeiros
         </p>
