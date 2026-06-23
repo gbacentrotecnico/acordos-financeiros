@@ -76,7 +76,11 @@ export default function App() {
   const [indicadores, setIndicadores] = useState<DashboardIndicadores>({
     saldoDevedorTotal: 0,
     totalAmortizado: 0,
-    previsaoMesAtual: 0,
+    previsao: {
+      hoje: 0,
+      semana: 0,
+      mes: 0
+    },
     alertasAtraso: []
   });
 
