@@ -499,7 +499,7 @@ export default function App() {
               <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center justify-between hover:shadow-md transition-shadow">
                 <div>
                   <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Previsão Deste Mês</p>
-                  <h3 className="text-2xl font-bold text-slate-900 mt-2">{formatCurrency(indicadores.previsaoMesAtual)}</h3>
+                  <h3 className="text-2xl font-bold text-slate-900 mt-2">{formatCurrency(indicadores.previsao?.mes || 0)}</h3>
                   <p className="text-xs text-blue-600 font-medium mt-1 flex items-center gap-1">
                     <Calendar className="h-3 w-3 inline" />
                     Compromissos acordados com vencimento este mês
@@ -719,14 +719,73 @@ export default function App() {
 
                             <div className="text-right flex flex-col items-end gap-2.5">
                               <span className="font-bold text-slate-900 text-sm">{formatCurrency(parc.valor)}</span>
-                              {parc.status === 'Pendente' && user.role === 'master' && (
-                                <button 
-                                  onClick={() => handleDescontarParcela(parc.id)}
-                                  className="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-2.5 py-1 rounded-md transition-colors active:scale-95 shadow-sm"
-                                >
-                                  Dar Baixa
-                                </button>
-                              )}
+                              <div className="flex items-center gap-1.5">
+                                {parc.status === 'Pendente' && user.role === 'master' && (
+                                  <>
+                                    <button 
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        const novoValor = prompt(`Parcela ${parc.numero_parcela} — Valor atual: R$${parc.valor.toFixed(2)}\n\nDigite o novo valor (o restante será redistribuído nas demais parcelas):`);
+                                        if (novoValor !== null && !isNaN(parseFloat(novoValor)) && parseFloat(novoValor) > 0) {
+                                          (async () => {
+                                            try {
+                                              const res = await fetch(`/api/parcelas/${parc.id}`, {
+                                                method: 'PUT',
+                                                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                                                body: JSON.stringify({ valor: parseFloat(novoValor), redistribuir: true })
+                                              });
+                                              const data = await res.json();
+                                              if (data.success) {
+                                                setSuccessMsg('Parcela atualizada e saldo redistribuído!');
+                                                fetchAllData();
+                                                if (selectedAcordo) selectAcordo(selectedAcordo);
+                                              } else {
+                                                setErrorMsg(data.error || 'Erro ao atualizar parcela.');
+                                              }
+                                            } catch { setErrorMsg('Falha de rede.'); }
+                                          })();
+                                        }
+                                      }}
+                                      className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 text-[10px] font-bold px-2 py-1 rounded-md transition-colors active:scale-95"
+                                      title="Editar valor desta parcela"
+                                    >
+                                      Editar
+                                    </button>
+                                    <button 
+                                      onClick={() => handleDescontarParcela(parc.id)}
+                                      className="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-2.5 py-1 rounded-md transition-colors active:scale-95 shadow-sm"
+                                    >
+                                      Dar Baixa
+                                    </button>
+                                  </>
+                                )}
+                                {parc.status === 'Descontado' && user.role === 'master' && (
+                                  <button 
+                                    onClick={async (e) => {
+                                      e.stopPropagation();
+                                      if (!confirm(`Tem certeza que deseja REVERTER a baixa da parcela ${parc.numero_parcela}? Ela voltará para "Pendente".`)) return;
+                                      try {
+                                        const res = await fetch(`/api/parcelas/${parc.id}/reverter`, {
+                                          method: 'PUT',
+                                          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
+                                        });
+                                        const data = await res.json();
+                                        if (data.success) {
+                                          setSuccessMsg('Baixa revertida com sucesso!');
+                                          fetchAllData();
+                                          if (selectedAcordo) selectAcordo(selectedAcordo);
+                                        } else {
+                                          setErrorMsg(data.error || 'Erro ao reverter.');
+                                        }
+                                      } catch { setErrorMsg('Falha de rede.'); }
+                                    }}
+                                    className="bg-amber-100 hover:bg-amber-200 text-amber-800 text-[10px] font-bold px-2 py-1 rounded-md transition-colors active:scale-95"
+                                    title="Reverter esta baixa"
+                                  >
+                                    Reverter
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           </div>
                         ))

@@ -200,5 +200,86 @@ export const AcordosController = {
         error: error.message || 'Erro interno ao excluir acordo.'
       });
     }
+  },
+
+  update: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const acordoId = parseInt(id, 10);
+      if (isNaN(acordoId)) {
+        return res.status(400).json({ success: false, error: 'ID do acordo inválido.' });
+      }
+
+      const { tipo, descricao } = req.body;
+      await Repo.updateAcordo(acordoId, { tipo, descricao });
+
+      return res.json({
+        success: true,
+        message: 'Acordo atualizado com sucesso.'
+      });
+    } catch (error: any) {
+      console.error('Erro ao atualizar acordo:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Erro interno ao atualizar acordo.'
+      });
+    }
+  },
+
+  updateParcela: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const parcelaId = parseInt(id, 10);
+      if (isNaN(parcelaId)) {
+        return res.status(400).json({ success: false, error: 'ID da parcela inválido.' });
+      }
+
+      const { valor, data_vencimento, redistribuir } = req.body;
+
+      if (valor !== undefined && (isNaN(valor) || valor <= 0)) {
+        return res.status(400).json({ success: false, error: 'O valor deve ser maior que zero.' });
+      }
+
+      const result = await Repo.updateParcela(parcelaId, { valor, data_vencimento });
+
+      // Se redistribuir=true e o valor mudou, redistribuir o saldo nas demais parcelas pendentes
+      if (redistribuir && valor !== undefined) {
+        await Repo.redistribuirParcelas(result.acordo_id, parcelaId);
+      }
+
+      return res.json({
+        success: true,
+        message: 'Parcela atualizada com sucesso.'
+      });
+    } catch (error: any) {
+      console.error('Erro ao atualizar parcela:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Erro interno ao atualizar parcela.'
+      });
+    }
+  },
+
+  reverterParcela: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const parcelaId = parseInt(id, 10);
+      if (isNaN(parcelaId)) {
+        return res.status(400).json({ success: false, error: 'ID da parcela inválido.' });
+      }
+
+      await Repo.reverterParcela(parcelaId);
+
+      return res.json({
+        success: true,
+        message: 'Baixa revertida com sucesso. Parcela voltou para Pendente.'
+      });
+    } catch (error: any) {
+      console.error('Erro ao reverter parcela:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Erro interno ao reverter parcela.'
+      });
+    }
   }
 };

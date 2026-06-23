@@ -964,5 +964,126 @@ export const Repo = {
         return null;
       }
     }
+  },
+
+  updateAcordo: async (id: number, data: { tipo?: string; descricao?: string }): Promise<void> => {
+    if (usePostgres && pool) {
+      const fields: string[] = [];
+      const values: any[] = [];
+      let idx = 1;
+      if (data.tipo !== undefined) { fields.push(`tipo = $${idx++}`); values.push(data.tipo); }
+      if (data.descricao !== undefined) { fields.push(`descricao = $${idx++}`); values.push(data.descricao); }
+      if (fields.length === 0) return;
+      values.push(id);
+      await pool.query(`UPDATE acordos SET ${fields.join(', ')} WHERE id = $${idx}`, values);
+    } else {
+      const db = readLocalDb();
+      const acordo = db.acordos.find((a: any) => a.id === id);
+      if (!acordo) throw new Error('Acordo não encontrado.');
+      if (data.tipo !== undefined) acordo.tipo = data.tipo;
+      if (data.descricao !== undefined) acordo.descricao = data.descricao;
+      writeLocalDb(db);
+    }
+  },
+
+  updateParcela: async (id: number, data: { valor?: number; data_vencimento?: string }): Promise<{ acordo_id: number }> => {
+    if (usePostgres && pool) {
+      const fields: string[] = [];
+      const values: any[] = [];
+      let idx = 1;
+      if (data.valor !== undefined) { fields.push(`valor = $${idx++}`); values.push(data.valor); }
+      if (data.data_vencimento !== undefined) { fields.push(`data_vencimento = $${idx++}`); values.push(data.data_vencimento); }
+      if (fields.length === 0) throw new Error('Nenhum campo para atualizar.');
+      values.push(id);
+      const { rows } = await pool.query(`UPDATE parcelas SET ${fields.join(', ')} WHERE id = $${idx} RETURNING acordo_id`, values);
+      if (rows.length === 0) throw new Error('Parcela não encontrada.');
+      return { acordo_id: rows[0].acordo_id };
+    } else {
+      const db = readLocalDb();
+      const parcela = db.parcelas.find((p: any) => p.id === id);
+      if (!parcela) throw new Error('Parcela não encontrada.');
+      if (data.valor !== undefined) parcela.valor = data.valor;
+      if (data.data_vencimento !== undefined) parcela.data_vencimento = data.data_vencimento;
+      writeLocalDb(db);
+      return { acordo_id: parcela.acordo_id };
+    }
+  },
+
+  reverterParcela: async (id: number): Promise<void> => {
+    if (usePostgres && pool) {
+      const { rowCount } = await pool.query(
+        "UPDATE parcelas SET status = 'Pendente', data_desconto = NULL WHERE id = $1",
+        [id]
+      );
+      if (rowCount === 0) throw new Error('Parcela não encontrada.');
+    } else {
+      const db = readLocalDb();
+      const parcela = db.parcelas.find((p: any) => p.id === id);
+      if (!parcela) throw new Error('Parcela não encontrada.');
+      parcela.status = 'Pendente';
+      parcela.data_desconto = null;
+      writeLocalDb(db);
+    }
+  },
+
+  redistribuirParcelas: async (acordoId: number, parcelaAlteradaId: number): Promise<void> => {
+    if (usePostgres && pool) {
+      // 1. Buscar valor total do acordo
+      const { rows: acordoRows } = await pool.query('SELECT valor_total FROM acordos WHERE id = $1', [acordoId]);
+      if (acordoRows.length === 0) return;
+      const valorTotalCentavos = Math.round(acordoRows[0].valor_total * 100);
+
+      // 2. Soma de todas as parcelas que NÃO são pendentes (já pagas) + a parcela alterada
+      const { rows: fixedRows } = await pool.query(
+        `SELECT COALESCE(SUM(valor), 0)::float AS total FROM parcelas 
+         WHERE acordo_id = $1 AND (status != 'Pendente' OR id = $2)`,
+        [acordoId, parcelaAlteradaId]
+      );
+      const somaFixaCentavos = Math.round(fixedRows[0].total * 100);
+
+      // 3. Buscar parcelas pendentes restantes (excluindo a alterada)
+      const { rows: pendentes } = await pool.query(
+        "SELECT id FROM parcelas WHERE acordo_id = $1 AND status = 'Pendente' AND id != $2 ORDER BY numero_parcela",
+        [acordoId, parcelaAlteradaId]
+      );
+
+      if (pendentes.length === 0) return;
+
+      const saldoRestanteCentavos = valorTotalCentavos - somaFixaCentavos;
+      const baseCentavos = Math.floor(saldoRestanteCentavos / pendentes.length);
+      const restoCentavos = saldoRestanteCentavos % pendentes.length;
+
+      for (let i = 0; i < pendentes.length; i++) {
+        const novoValorCentavos = i === pendentes.length - 1 ? baseCentavos + restoCentavos : baseCentavos;
+        await pool.query('UPDATE parcelas SET valor = $1 WHERE id = $2', [novoValorCentavos / 100, pendentes[i].id]);
+      }
+    } else {
+      const db = readLocalDb();
+      const acordo = db.acordos.find((a: any) => a.id === acordoId);
+      if (!acordo) return;
+      const valorTotalCentavos = Math.round(acordo.valor_total * 100);
+
+      // Soma de parcelas fixas (não pendentes + a parcela alterada)
+      const somaFixaCentavos = db.parcelas
+        .filter((p: any) => p.acordo_id === acordoId && (p.status !== 'Pendente' || p.id === parcelaAlteradaId))
+        .reduce((sum: number, p: any) => sum + Math.round(p.valor * 100), 0);
+
+      // Parcelas pendentes restantes
+      const pendentes = db.parcelas
+        .filter((p: any) => p.acordo_id === acordoId && p.status === 'Pendente' && p.id !== parcelaAlteradaId)
+        .sort((a: any, b: any) => a.numero_parcela - b.numero_parcela);
+
+      if (pendentes.length === 0) { writeLocalDb(db); return; }
+
+      const saldoRestanteCentavos = valorTotalCentavos - somaFixaCentavos;
+      const baseCentavos = Math.floor(saldoRestanteCentavos / pendentes.length);
+      const restoCentavos = saldoRestanteCentavos % pendentes.length;
+
+      for (let i = 0; i < pendentes.length; i++) {
+        const novoValorCentavos = i === pendentes.length - 1 ? baseCentavos + restoCentavos : baseCentavos;
+        pendentes[i].valor = novoValorCentavos / 100;
+      }
+      writeLocalDb(db);
+    }
   }
 };

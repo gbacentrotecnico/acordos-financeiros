@@ -59,6 +59,11 @@ async function startServer() {
   // 5. Baixa de Parcelas (Protegida - Apenas Master)
   app.put('/api/parcelas/:id/descontar', authMiddleware, roleMiddleware(['master']), ParcelasController.descontar);
 
+  // 6. Edição de Acordos e Parcelas (Protegida - Apenas Master)
+  app.put('/api/acordos/:id', authMiddleware, roleMiddleware(['master']), AcordosController.update);
+  app.put('/api/parcelas/:id', authMiddleware, roleMiddleware(['master']), AcordosController.updateParcela);
+  app.put('/api/parcelas/:id/reverter', authMiddleware, roleMiddleware(['master']), AcordosController.reverterParcela);
+
   // 6. Importação em Lote (Protegida - Apenas Master)
   app.get('/api/importacao/template', authMiddleware, roleMiddleware(['master']), ImportacaoController.downloadTemplate);
   app.post('/api/importacao/upload', authMiddleware, roleMiddleware(['master']), upload.single('file'), ImportacaoController.uploadSpreadsheet);

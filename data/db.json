@@ -1,5 +1,12 @@
 {
-  "lojas": [],
+  "lojas": [
+    {
+      "id": 1,
+      "nome": "GBA - 1",
+      "endereco": "Av Francisco Junqueira- 422",
+      "created_at": "2026-06-23T20:21:10.202Z"
+    }
+  ],
   "colaboradores": [
     {
       "id": 1,
@@ -24,6 +31,15 @@
       "telefone": "(11) 96666-5555",
       "loja": "Auto Center Norte",
       "cargo": "Alinhador Chefe"
+    },
+    {
+      "id": 4,
+      "nome": "Alex Ignacio",
+      "cpf": "261.180.578-42",
+      "telefone": "16982265352",
+      "loja": "GBA - 1",
+      "cargo": "Gestor de Automação",
+      "created_at": "2026-06-23T20:22:00.365Z"
     }
   ],
   "acordos": [
