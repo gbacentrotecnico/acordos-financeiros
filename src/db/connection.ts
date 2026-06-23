@@ -36,6 +36,70 @@ if (usePostgres) {
   });
 
   console.log('🔌 Conectando ao Banco de Dados PostgreSQL Externo...');
+
+  const initPostgres = async () => {
+    try {
+      const client = await pool!.connect();
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS usuarios (
+          id SERIAL PRIMARY KEY,
+          nome VARCHAR(100),
+          email VARCHAR(100) UNIQUE,
+          senha_hash VARCHAR(255),
+          role VARCHAR(50),
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS colaboradores (
+          id SERIAL PRIMARY KEY,
+          nome VARCHAR(100),
+          cpf VARCHAR(20) UNIQUE,
+          telefone VARCHAR(50),
+          loja VARCHAR(100),
+          cargo VARCHAR(100),
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS acordos (
+          id SERIAL PRIMARY KEY,
+          colaborador_id INTEGER REFERENCES colaboradores(id) ON DELETE CASCADE,
+          tipo VARCHAR(50),
+          descricao TEXT,
+          valor_total NUMERIC(10, 2),
+          qtd_parcelas INTEGER,
+          status VARCHAR(50),
+          data_acordo DATE,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS parcelas (
+          id SERIAL PRIMARY KEY,
+          acordo_id INTEGER REFERENCES acordos(id) ON DELETE CASCADE,
+          numero_parcela INTEGER,
+          valor NUMERIC(10, 2),
+          data_vencimento DATE,
+          status VARCHAR(50),
+          data_desconto DATE,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+      
+      const { rows } = await client.query('SELECT COUNT(*) FROM usuarios');
+      if (parseInt(rows[0].count) === 0) {
+        const adminEmail = process.env.ADMIN_EMAIL || 'admin@gbamecanica.com.br';
+        const adminPass = process.env.ADMIN_PASS || 'gbamecanica010203';
+        const hash = bcrypt.hashSync(adminPass, 10);
+        await client.query(
+          'INSERT INTO usuarios (nome, email, senha_hash, role) VALUES ($1, $2, $3, $4)',
+          ['Gestão de Finanças', adminEmail, hash, 'master']
+        );
+        console.log('✅ Usuário admin (master) criado automaticamente no Postgres!');
+      }
+      client.release();
+    } catch (e) {
+      console.error('❌ Erro na inicialização das tabelas no Postgres:', e);
+    }
+  };
+  
+  initPostgres();
+
 } else {
   console.log('🤖 PostgreSQL não configurado no ambiente de preview. Inicializando Banco de Dados local (JSON) para testes em tempo real...');
 }
