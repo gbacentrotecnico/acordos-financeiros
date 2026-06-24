@@ -1085,5 +1085,120 @@ export const Repo = {
       }
       writeLocalDb(db);
     }
+  },
+
+  amortizarAcordo: async (acordoId: number, valorAmortizado: number, tipo: 'redividir' | 'tras_pra_frente'): Promise<void> => {
+    const dataHoje = new Date().toISOString().split('T')[0];
+    if (usePostgres && pool) {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        
+        // 1. Criar a parcela de amortização (Descontada imediatamente)
+        const insertSql = `
+          INSERT INTO parcelas (acordo_id, numero_parcela, valor, data_vencimento, status, data_desconto)
+          VALUES ($1, 0, $2, $3, 'Descontado', $3)
+          RETURNING id
+        `;
+        const { rows: pRows } = await client.query(insertSql, [acordoId, valorAmortizado, dataHoje]);
+        const novaParcelaId = pRows[0].id;
+
+        if (tipo === 'redividir') {
+          // Salva, e então chama a função de redistribuição que já cuida do recalculo
+          await client.query('COMMIT');
+          await Repo.redistribuirParcelas(acordoId, novaParcelaId);
+        } else if (tipo === 'tras_pra_frente') {
+          // Buscar parcelas pendentes ordenadas da última para a primeira
+          const { rows: pendentes } = await client.query(
+            "SELECT id, valor::float AS valor FROM parcelas WHERE acordo_id = $1 AND status = 'Pendente' ORDER BY numero_parcela DESC",
+            [acordoId]
+          );
+
+          let restanteCentavos = Math.round(valorAmortizado * 100);
+          for (const p of pendentes) {
+            if (restanteCentavos <= 0) break;
+            const pValorCentavos = Math.round(p.valor * 100);
+            
+            if (restanteCentavos >= pValorCentavos) {
+              // Abate a parcela inteira -> removemos ela para encurtar o prazo
+              await client.query('DELETE FROM parcelas WHERE id = $1', [p.id]);
+              restanteCentavos -= pValorCentavos;
+            } else {
+              // Abate parcialmente a parcela
+              const novoValorCentavos = pValorCentavos - restanteCentavos;
+              await client.query('UPDATE parcelas SET valor = $1 WHERE id = $2', [novoValorCentavos / 100, p.id]);
+              restanteCentavos = 0;
+            }
+          }
+          
+          // Atualiza qtd_parcelas do acordo para refletir as exclusões/adições
+          const { rows: countRows } = await client.query("SELECT COUNT(*) AS total FROM parcelas WHERE acordo_id = $1 AND numero_parcela > 0", [acordoId]);
+          await client.query("UPDATE acordos SET qtd_parcelas = $1 WHERE id = $2", [countRows[0].total, acordoId]);
+          
+          await client.query('COMMIT');
+        }
+      } catch (err) {
+        await client.query('ROLLBACK');
+        console.error('Erro na amortização (Postgres):', err);
+        throw new Error('Falha ao processar amortização.', { cause: err });
+      } finally {
+        client.release();
+      }
+    } else {
+      const db = readLocalDb();
+      const acordo = db.acordos.find((a: any) => a.id === acordoId);
+      if (!acordo) throw new Error('Acordo não encontrado');
+
+      let nextParcelaId = db.parcelas.length > 0 ? Math.max(...db.parcelas.map((p: any) => p.id)) + 1 : 1;
+      
+      // Cria a parcela de amortização
+      const amortParcela = {
+        id: nextParcelaId,
+        acordo_id: acordoId,
+        numero_parcela: 0,
+        valor: valorAmortizado,
+        data_vencimento: dataHoje,
+        status: 'Descontado',
+        data_desconto: dataHoje,
+        created_at: new Date().toISOString()
+      };
+      db.parcelas.push(amortParcela);
+      writeLocalDb(db); // Salva para o redistribuir pegar se precisar
+
+      if (tipo === 'redividir') {
+        await Repo.redistribuirParcelas(acordoId, amortParcela.id);
+      } else if (tipo === 'tras_pra_frente') {
+        // Recarrega db caso writeLocalDb tenha alterado referência
+        const dbLocal = readLocalDb();
+        const pendentes = dbLocal.parcelas
+          .filter((p: any) => p.acordo_id === acordoId && p.status === 'Pendente')
+          .sort((a: any, b: any) => b.numero_parcela - a.numero_parcela); // DESC
+
+        let restanteCentavos = Math.round(valorAmortizado * 100);
+        
+        for (const p of pendentes) {
+          if (restanteCentavos <= 0) break;
+          const pValorCentavos = Math.round(p.valor * 100);
+          
+          if (restanteCentavos >= pValorCentavos) {
+            // Remove a parcela
+            dbLocal.parcelas = dbLocal.parcelas.filter((x: any) => x.id !== p.id);
+            restanteCentavos -= pValorCentavos;
+          } else {
+            // Abate parcial
+            const novoValorCentavos = pValorCentavos - restanteCentavos;
+            p.valor = novoValorCentavos / 100;
+            restanteCentavos = 0;
+          }
+        }
+        
+        // Atualiza qtd_parcelas
+        const totalP = dbLocal.parcelas.filter((p: any) => p.acordo_id === acordoId && p.numero_parcela > 0).length;
+        const ac = dbLocal.acordos.find((a: any) => a.id === acordoId);
+        if (ac) ac.qtd_parcelas = totalP;
+        
+        writeLocalDb(dbLocal);
+      }
+    }
   }
 };

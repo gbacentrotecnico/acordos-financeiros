@@ -281,5 +281,36 @@ export const AcordosController = {
         error: error.message || 'Erro interno ao reverter parcela.'
       });
     }
+  },
+
+  amortizar: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const acordoId = parseInt(id, 10);
+      if (isNaN(acordoId)) {
+        return res.status(400).json({ success: false, error: 'ID do acordo inválido.' });
+      }
+
+      const { valor, tipo } = req.body;
+      if (!valor || isNaN(valor) || valor <= 0) {
+        return res.status(400).json({ success: false, error: 'O valor da amortização deve ser maior que zero.' });
+      }
+      if (tipo !== 'redividir' && tipo !== 'tras_pra_frente') {
+        return res.status(400).json({ success: false, error: 'Tipo de amortização inválido.' });
+      }
+
+      await Repo.amortizarAcordo(acordoId, valor, tipo);
+
+      return res.json({
+        success: true,
+        message: 'Amortização realizada com sucesso.'
+      });
+    } catch (error: any) {
+      console.error('Erro ao amortizar acordo:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Erro interno ao amortizar acordo.'
+      });
+    }
   }
 };

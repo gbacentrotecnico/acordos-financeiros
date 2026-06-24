@@ -33,8 +33,10 @@ import UsersManager from './components/UsersManager.tsx';
 import QuitadosArchive from './components/QuitadosArchive.tsx';
 import RankingBoard from './components/RankingBoard.tsx';
 import LojasManager from './components/LojasManager.tsx';
+import { AmortizacaoModal } from './components/AmortizacaoModal.tsx';
+import { EditParcelaModal } from './components/EditParcelaModal.tsx';
 import { useAuth } from './contexts/AuthContext.tsx';
-import { LogOut, Settings } from 'lucide-react';
+import { LogOut, Settings, HandCoins } from 'lucide-react';
 
 // Helper de formatação de moeda brasileira
 const formatCurrency = (val: number) => {
@@ -94,6 +96,9 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [tipoFilter, setTipoFilter] = useState<string>('todos');
   const [activeTab, setActiveTab] = useState<'rh' | 'executivo' | 'quitados' | 'ranking' | 'config'>('rh');
+  const [filtroPrevisao, setFiltroPrevisao] = useState<'hoje' | 'semana' | 'mes'>('mes');
+  const [modalAmortizacaoOpen, setModalAmortizacaoOpen] = useState(false);
+  const [editParcelaData, setEditParcelaData] = useState<null | { id: number, num: number, valor: number, dataVencimento: string }>(null);
 
   const { user, token, loading: authLoading, logout } = useAuth();
 
@@ -499,14 +504,25 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Card 3: Previsão do Mês Atual */}
+              {/* Card 3: Previsão (Filtro) */}
               <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center justify-between hover:shadow-md transition-shadow">
                 <div>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Previsão Deste Mês</p>
-                  <h3 className="text-2xl font-bold text-slate-900 mt-2">{formatCurrency(indicadores.previsao?.mes || 0)}</h3>
+                  <div className="flex items-center justify-between mb-2 gap-4">
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Previsão</p>
+                    <select 
+                      value={filtroPrevisao}
+                      onChange={(e) => setFiltroPrevisao(e.target.value as 'hoje' | 'semana' | 'mes')}
+                      className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                      <option value="hoje">Hoje</option>
+                      <option value="semana">Esta Semana</option>
+                      <option value="mes">Este Mês</option>
+                    </select>
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-900">{formatCurrency(indicadores.previsao?.[filtroPrevisao] || 0)}</h3>
                   <p className="text-xs text-blue-600 font-medium mt-1 flex items-center gap-1">
                     <Calendar className="h-3 w-3 inline" />
-                    Compromissos acordados com vencimento este mês
+                    Compromissos acordados no período
                   </p>
                 </div>
                 <div className="bg-blue-50 p-3.5 rounded-2xl text-blue-600">
@@ -680,7 +696,18 @@ export default function App() {
                       )}
                     </div>
                     {selectedAcordo && (
-                      <span className="text-xs font-bold text-slate-400">Total: {selectedAcordo.qtd_parcelas} parc.</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-bold text-slate-400">Total: {selectedAcordo.qtd_parcelas} parc.</span>
+                        {user.role === 'master' && selectedAcordo.status !== 'quitado' && (
+                          <button 
+                            onClick={() => setModalAmortizacaoOpen(true)}
+                            className="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 active:scale-95 shadow-sm"
+                          >
+                            <HandCoins className="h-4 w-4" />
+                            Amortizar
+                          </button>
+                        )}
+                      </div>
                     )}
                   </div>
 
@@ -729,26 +756,7 @@ export default function App() {
                                     <button 
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        const novoValor = prompt(`Parcela ${parc.numero_parcela} — Valor atual: R$${parc.valor.toFixed(2)}\n\nDigite o novo valor (o restante será redistribuído nas demais parcelas):`);
-                                        if (novoValor !== null && !isNaN(parseFloat(novoValor)) && parseFloat(novoValor) > 0) {
-                                          (async () => {
-                                            try {
-                                              const res = await fetch(`/api/parcelas/${parc.id}`, {
-                                                method: 'PUT',
-                                                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                                                body: JSON.stringify({ valor: parseFloat(novoValor), redistribuir: true })
-                                              });
-                                              const data = await res.json();
-                                              if (data.success) {
-                                                setSuccessMsg('Parcela atualizada e saldo redistribuído!');
-                                                fetchAllData();
-                                                if (selectedAcordo) selectAcordo(selectedAcordo);
-                                              } else {
-                                                setErrorMsg(data.error || 'Erro ao atualizar parcela.');
-                                              }
-                                            } catch { setErrorMsg('Falha de rede.'); }
-                                          })();
-                                        }
+                                        setEditParcelaData({ id: parc.id, num: parc.numero_parcela, valor: parc.valor, dataVencimento: parc.data_vencimento });
                                       }}
                                       className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 text-[10px] font-bold px-2 py-1 rounded-md transition-colors active:scale-95"
                                       title="Editar valor desta parcela"
@@ -1084,6 +1092,40 @@ export default function App() {
             setModalImportOpen(false);
             fetchAllData();
           }} 
+        />
+      )}
+
+      {/* MODAL AMORTIZAÇÃO */}
+      {modalAmortizacaoOpen && selectedAcordo && (
+        <AmortizacaoModal 
+          acordoId={selectedAcordo.id}
+          acordoDescricao={selectedAcordo.descricao || translateTipoAcordo(selectedAcordo.tipo)}
+          token={token!}
+          onClose={() => setModalAmortizacaoOpen(false)}
+          onSuccess={() => {
+            setModalAmortizacaoOpen(false);
+            setSuccessMsg('Amortização realizada com sucesso!');
+            fetchAllData();
+            selectAcordo(selectedAcordo);
+          }}
+        />
+      )}
+
+      {/* MODAL EDITAR PARCELA */}
+      {editParcelaData && (
+        <EditParcelaModal 
+          parcelaId={editParcelaData.id}
+          numeroParcela={editParcelaData.num}
+          valorAtual={editParcelaData.valor}
+          dataVencimentoAtual={editParcelaData.dataVencimento}
+          token={token!}
+          onClose={() => setEditParcelaData(null)}
+          onSuccess={() => {
+            setEditParcelaData(null);
+            setSuccessMsg('Parcela atualizada com sucesso!');
+            fetchAllData();
+            if (selectedAcordo) selectAcordo(selectedAcordo);
+          }}
         />
       )}
     </div>

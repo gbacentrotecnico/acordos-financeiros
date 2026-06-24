@@ -59,7 +59,8 @@ async function startServer() {
   // 5. Baixa de Parcelas (Protegida - Apenas Master)
   app.put('/api/parcelas/:id/descontar', authMiddleware, roleMiddleware(['master']), ParcelasController.descontar);
 
-  // 6. Edição de Acordos e Parcelas (Protegida - Apenas Master)
+  // 6. Edição e Amortização de Acordos e Parcelas (Protegida - Apenas Master)
+  app.post('/api/acordos/:id/amortizar', authMiddleware, roleMiddleware(['master']), AcordosController.amortizar);
   app.put('/api/acordos/:id', authMiddleware, roleMiddleware(['master']), AcordosController.update);
   app.put('/api/parcelas/:id', authMiddleware, roleMiddleware(['master']), AcordosController.updateParcela);
   app.put('/api/parcelas/:id/reverter', authMiddleware, roleMiddleware(['master']), AcordosController.reverterParcela);
