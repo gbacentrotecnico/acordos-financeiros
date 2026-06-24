@@ -95,6 +95,28 @@
       "status": "ativo",
       "data_acordo": "2026-06-22",
       "created_at": "2026-06-22T21:25:36.335Z"
+    },
+    {
+      "id": 6,
+      "colaborador_id": 1,
+      "tipo": "emprestimo_vale",
+      "descricao": "",
+      "valor_total": 500,
+      "qtd_parcelas": 1,
+      "status": "ativo",
+      "data_acordo": "2026-06-24",
+      "created_at": "2026-06-24T19:06:11.820Z"
+    },
+    {
+      "id": 7,
+      "colaborador_id": 4,
+      "tipo": "veiculo_usado",
+      "descricao": "",
+      "valor_total": 60000,
+      "qtd_parcelas": 60,
+      "status": "ativo",
+      "data_acordo": "2026-06-24",
+      "created_at": "2026-06-24T19:08:50.783Z"
     }
   ],
   "parcelas": [
@@ -618,6 +640,616 @@
       "status": "Pendente",
       "data_desconto": null,
       "created_at": "2026-06-22T21:25:36.335Z"
+    },
+    {
+      "id": 54,
+      "acordo_id": 6,
+      "numero_parcela": 1,
+      "valor": 500,
+      "data_vencimento": "2026-06-30",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:06:11.824Z"
+    },
+    {
+      "id": 55,
+      "acordo_id": 7,
+      "numero_parcela": 1,
+      "valor": 1000,
+      "data_vencimento": "2026-07-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 56,
+      "acordo_id": 7,
+      "numero_parcela": 2,
+      "valor": 1000,
+      "data_vencimento": "2026-08-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 57,
+      "acordo_id": 7,
+      "numero_parcela": 3,
+      "valor": 1000,
+      "data_vencimento": "2026-09-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 58,
+      "acordo_id": 7,
+      "numero_parcela": 4,
+      "valor": 1000,
+      "data_vencimento": "2026-10-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 59,
+      "acordo_id": 7,
+      "numero_parcela": 5,
+      "valor": 1000,
+      "data_vencimento": "2026-11-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 60,
+      "acordo_id": 7,
+      "numero_parcela": 6,
+      "valor": 1000,
+      "data_vencimento": "2026-12-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 61,
+      "acordo_id": 7,
+      "numero_parcela": 7,
+      "valor": 1000,
+      "data_vencimento": "2027-01-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 62,
+      "acordo_id": 7,
+      "numero_parcela": 8,
+      "valor": 1000,
+      "data_vencimento": "2027-02-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 63,
+      "acordo_id": 7,
+      "numero_parcela": 9,
+      "valor": 1000,
+      "data_vencimento": "2027-03-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 64,
+      "acordo_id": 7,
+      "numero_parcela": 10,
+      "valor": 1000,
+      "data_vencimento": "2027-04-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 65,
+      "acordo_id": 7,
+      "numero_parcela": 11,
+      "valor": 1000,
+      "data_vencimento": "2027-05-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 66,
+      "acordo_id": 7,
+      "numero_parcela": 12,
+      "valor": 1000,
+      "data_vencimento": "2027-06-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 67,
+      "acordo_id": 7,
+      "numero_parcela": 13,
+      "valor": 1000,
+      "data_vencimento": "2027-07-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 68,
+      "acordo_id": 7,
+      "numero_parcela": 14,
+      "valor": 1000,
+      "data_vencimento": "2027-08-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 69,
+      "acordo_id": 7,
+      "numero_parcela": 15,
+      "valor": 1000,
+      "data_vencimento": "2027-09-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 70,
+      "acordo_id": 7,
+      "numero_parcela": 16,
+      "valor": 1000,
+      "data_vencimento": "2027-10-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 71,
+      "acordo_id": 7,
+      "numero_parcela": 17,
+      "valor": 1000,
+      "data_vencimento": "2027-11-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 72,
+      "acordo_id": 7,
+      "numero_parcela": 18,
+      "valor": 1000,
+      "data_vencimento": "2027-12-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 73,
+      "acordo_id": 7,
+      "numero_parcela": 19,
+      "valor": 1000,
+      "data_vencimento": "2028-01-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 74,
+      "acordo_id": 7,
+      "numero_parcela": 20,
+      "valor": 1000,
+      "data_vencimento": "2028-02-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 75,
+      "acordo_id": 7,
+      "numero_parcela": 21,
+      "valor": 1000,
+      "data_vencimento": "2028-03-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 76,
+      "acordo_id": 7,
+      "numero_parcela": 22,
+      "valor": 1000,
+      "data_vencimento": "2028-04-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 77,
+      "acordo_id": 7,
+      "numero_parcela": 23,
+      "valor": 1000,
+      "data_vencimento": "2028-05-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 78,
+      "acordo_id": 7,
+      "numero_parcela": 24,
+      "valor": 1000,
+      "data_vencimento": "2028-06-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 79,
+      "acordo_id": 7,
+      "numero_parcela": 25,
+      "valor": 1000,
+      "data_vencimento": "2028-07-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 80,
+      "acordo_id": 7,
+      "numero_parcela": 26,
+      "valor": 1000,
+      "data_vencimento": "2028-08-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 81,
+      "acordo_id": 7,
+      "numero_parcela": 27,
+      "valor": 1000,
+      "data_vencimento": "2028-09-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 82,
+      "acordo_id": 7,
+      "numero_parcela": 28,
+      "valor": 1000,
+      "data_vencimento": "2028-10-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 83,
+      "acordo_id": 7,
+      "numero_parcela": 29,
+      "valor": 1000,
+      "data_vencimento": "2028-11-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 84,
+      "acordo_id": 7,
+      "numero_parcela": 30,
+      "valor": 1000,
+      "data_vencimento": "2028-12-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 85,
+      "acordo_id": 7,
+      "numero_parcela": 31,
+      "valor": 1000,
+      "data_vencimento": "2029-01-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 86,
+      "acordo_id": 7,
+      "numero_parcela": 32,
+      "valor": 1000,
+      "data_vencimento": "2029-02-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 87,
+      "acordo_id": 7,
+      "numero_parcela": 33,
+      "valor": 1000,
+      "data_vencimento": "2029-03-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 88,
+      "acordo_id": 7,
+      "numero_parcela": 34,
+      "valor": 1000,
+      "data_vencimento": "2029-04-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 89,
+      "acordo_id": 7,
+      "numero_parcela": 35,
+      "valor": 1000,
+      "data_vencimento": "2029-05-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 90,
+      "acordo_id": 7,
+      "numero_parcela": 36,
+      "valor": 1000,
+      "data_vencimento": "2029-06-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 91,
+      "acordo_id": 7,
+      "numero_parcela": 37,
+      "valor": 1000,
+      "data_vencimento": "2029-07-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 92,
+      "acordo_id": 7,
+      "numero_parcela": 38,
+      "valor": 1000,
+      "data_vencimento": "2029-08-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 93,
+      "acordo_id": 7,
+      "numero_parcela": 39,
+      "valor": 1000,
+      "data_vencimento": "2029-09-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 94,
+      "acordo_id": 7,
+      "numero_parcela": 40,
+      "valor": 1000,
+      "data_vencimento": "2029-10-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 95,
+      "acordo_id": 7,
+      "numero_parcela": 41,
+      "valor": 1000,
+      "data_vencimento": "2029-11-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 96,
+      "acordo_id": 7,
+      "numero_parcela": 42,
+      "valor": 1000,
+      "data_vencimento": "2029-12-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 97,
+      "acordo_id": 7,
+      "numero_parcela": 43,
+      "valor": 1000,
+      "data_vencimento": "2030-01-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 98,
+      "acordo_id": 7,
+      "numero_parcela": 44,
+      "valor": 1000,
+      "data_vencimento": "2030-02-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 99,
+      "acordo_id": 7,
+      "numero_parcela": 45,
+      "valor": 1000,
+      "data_vencimento": "2030-03-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 100,
+      "acordo_id": 7,
+      "numero_parcela": 46,
+      "valor": 1000,
+      "data_vencimento": "2030-04-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 101,
+      "acordo_id": 7,
+      "numero_parcela": 47,
+      "valor": 1000,
+      "data_vencimento": "2030-05-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 102,
+      "acordo_id": 7,
+      "numero_parcela": 48,
+      "valor": 1000,
+      "data_vencimento": "2030-06-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 103,
+      "acordo_id": 7,
+      "numero_parcela": 49,
+      "valor": 1000,
+      "data_vencimento": "2030-07-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 104,
+      "acordo_id": 7,
+      "numero_parcela": 50,
+      "valor": 1000,
+      "data_vencimento": "2030-08-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 105,
+      "acordo_id": 7,
+      "numero_parcela": 51,
+      "valor": 1000,
+      "data_vencimento": "2030-09-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 106,
+      "acordo_id": 7,
+      "numero_parcela": 52,
+      "valor": 1000,
+      "data_vencimento": "2030-10-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 107,
+      "acordo_id": 7,
+      "numero_parcela": 53,
+      "valor": 1000,
+      "data_vencimento": "2030-11-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 108,
+      "acordo_id": 7,
+      "numero_parcela": 54,
+      "valor": 1000,
+      "data_vencimento": "2030-12-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 109,
+      "acordo_id": 7,
+      "numero_parcela": 55,
+      "valor": 1000,
+      "data_vencimento": "2031-01-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 110,
+      "acordo_id": 7,
+      "numero_parcela": 56,
+      "valor": 1000,
+      "data_vencimento": "2031-02-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 111,
+      "acordo_id": 7,
+      "numero_parcela": 57,
+      "valor": 1000,
+      "data_vencimento": "2031-03-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 112,
+      "acordo_id": 7,
+      "numero_parcela": 58,
+      "valor": 1000,
+      "data_vencimento": "2031-04-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 113,
+      "acordo_id": 7,
+      "numero_parcela": 59,
+      "valor": 1000,
+      "data_vencimento": "2031-05-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
+    },
+    {
+      "id": 114,
+      "acordo_id": 7,
+      "numero_parcela": 60,
+      "valor": 1000,
+      "data_vencimento": "2031-06-24",
+      "status": "Pendente",
+      "data_desconto": null,
+      "created_at": "2026-06-24T19:08:50.783Z"
     }
   ],
   "usuarios": [

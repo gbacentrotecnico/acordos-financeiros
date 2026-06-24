@@ -431,7 +431,8 @@ export const Repo = {
   getAcordos: async (): Promise<Acordo[]> => {
     if (usePostgres && pool) {
       const sql = `
-        SELECT a.*, c.nome AS colaborador_nome, c.loja AS colaborador_loja
+        SELECT a.id, a.colaborador_id, a.tipo, a.descricao, a.valor_total::float AS valor_total, a.qtd_parcelas, a.status, a.data_acordo, a.created_at, 
+               c.nome AS colaborador_nome, c.loja AS colaborador_loja
         FROM acordos a
         JOIN colaboradores c ON a.colaborador_id = c.id
         ORDER BY a.created_at DESC
@@ -458,7 +459,7 @@ export const Repo = {
 
   getAcordoById: async (id: number): Promise<Acordo | null> => {
     if (usePostgres && pool) {
-      const sql = 'SELECT * FROM acordos WHERE id = $1';
+      const sql = 'SELECT id, colaborador_id, tipo, descricao, valor_total::float AS valor_total, qtd_parcelas, status, data_acordo, created_at FROM acordos WHERE id = $1';
       try {
         const { rows } = await pool.query(sql, [id]);
         return rows.length > 0 ? rows[0] : null;
