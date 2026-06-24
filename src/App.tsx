@@ -23,7 +23,8 @@ import {
   LayoutDashboard,
   Smartphone,
   FileSpreadsheet,
-  Loader2
+  Loader2,
+  Trash2
 } from 'lucide-react';
 import { Colaborador, Acordo, Parcela, DashboardIndicadores, TipoAcordo, Loja } from './types.ts';
 import ExecutiveDashboard from './components/ExecutiveDashboard.tsx';
@@ -310,6 +311,32 @@ export default function App() {
       }
     } catch (err) {
       setErrorMsg('Falha de rede ao registrar baixa da parcela.');
+    }
+  };
+
+  const handleDeleteAcordo = async (acordoId: number) => {
+    if (!token) return;
+    if (!window.confirm('Tem certeza que deseja EXCLUIR permanentemente este acordo e todas as suas parcelas? Esta ação não pode ser desfeita.')) return;
+    
+    try {
+      const res = await fetch(`/api/acordos/${acordoId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        setSuccessMsg('Acordo excluído com sucesso!');
+        if (selectedAcordo?.id === acordoId) {
+          setSelectedAcordo(null);
+          setParcelas([]);
+        }
+        fetchAllData();
+      } else {
+        setErrorMsg(data.error || 'Erro ao excluir o acordo.');
+      }
+    } catch (err) {
+      setErrorMsg('Falha de rede ao excluir o acordo.');
     }
   };
 
@@ -703,6 +730,16 @@ export default function App() {
                           >
                             <HandCoins className="h-4 w-4" />
                             Amortizar
+                          </button>
+                        )}
+                        {user.role === 'master' && (
+                          <button 
+                            onClick={() => handleDeleteAcordo(selectedAcordo.id)}
+                            className="bg-rose-100 hover:bg-rose-200 text-rose-700 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 active:scale-95 shadow-sm"
+                            title="Excluir Acordo"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Excluir
                           </button>
                         )}
                       </div>
