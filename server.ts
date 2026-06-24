@@ -90,6 +90,37 @@ async function startServer() {
     });
   }
 
+  // === AUTO-FIX BANCO DE DADOS (corrige enums inválidos) ===
+  try {
+    const fs = await import('fs/promises');
+    const dbPath = path.join(process.cwd(), 'data', 'db.json');
+    const dataStr = await fs.readFile(dbPath, 'utf8');
+    const db = JSON.parse(dataStr);
+    let modified = false;
+    db.acordos = db.acordos.map((a: any) => {
+      if(a.tipo === 'veiculo_usado' || a.tipo === 'moto' || a.tipo === 'emprestimo_vale') return a;
+      
+      let lowerTipo = a.tipo.toLowerCase();
+      if(lowerTipo.includes('oto')) {
+        a.tipo = 'moto';
+        modified = true;
+      } else if(lowerTipo.includes('vale') || lowerTipo.includes('geral')) {
+        a.tipo = 'emprestimo_vale';
+        modified = true;
+      } else {
+        a.tipo = 'emprestimo_vale'; // default
+        modified = true;
+      }
+      return a;
+    });
+    if(modified) {
+      await fs.writeFile(dbPath, JSON.stringify(db, null, 2));
+      console.log('🔄 Banco de dados corrigido e enums atualizados com sucesso!');
+    }
+  } catch(e) {
+    console.error('Erro ao tentar auto-corrigir o banco:', e);
+  }
+
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`\n======================================================`);
     console.log(`🚀 Servidor Central de Acordos rodando na porta ${PORT}`);
