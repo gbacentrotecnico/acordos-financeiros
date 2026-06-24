@@ -44,11 +44,11 @@ async function startServer() {
 
   // 2. Colaboradores (Protegida)
   app.get('/api/colaboradores', authMiddleware, ColaboradoresController.list);
-  app.post('/api/colaboradores', authMiddleware, roleMiddleware(['master']), ColaboradoresController.create);
+  app.post('/api/colaboradores', authMiddleware, roleMiddleware(['master', 'diretor']), ColaboradoresController.create);
 
   // 3. Acordos (Protegida)
   app.get('/api/acordos', authMiddleware, AcordosController.list);
-  app.post('/api/acordos', authMiddleware, roleMiddleware(['master']), AcordosController.create);
+  app.post('/api/acordos', authMiddleware, roleMiddleware(['master', 'diretor']), AcordosController.create);
   app.delete('/api/acordos/:id', authMiddleware, roleMiddleware(['master']), AcordosController.delete);
   app.get('/api/acordos/:id/parcelas', authMiddleware, AcordosController.getParcelas);
 

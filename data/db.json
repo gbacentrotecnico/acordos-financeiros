@@ -77,7 +77,7 @@
     {
       "id": 4,
       "colaborador_id": 1,
-      "tipo": "Moto Shineray",
+      "tipo": "moto",
       "descricao": "",
       "valor_total": 10000,
       "qtd_parcelas": 20,
@@ -88,7 +88,7 @@
     {
       "id": 5,
       "colaborador_id": 1,
-      "tipo": "Acordo Geral",
+      "tipo": "emprestimo_vale",
       "descricao": "AnotaÃ§Ãµes: (19/03) 20x",
       "valor_total": 12000,
       "qtd_parcelas": 20,
