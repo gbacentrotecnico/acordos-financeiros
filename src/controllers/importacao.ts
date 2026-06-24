@@ -4,6 +4,7 @@ import { Repo } from '../db/connection.ts';
 import { DocumentosService } from '../services/documentos.ts';
 import { WhatsAppService } from '../services/whatsapp.ts';
 import { addWeeks, addMonths, addDays } from 'date-fns';
+import { TipoAcordo } from '../types.ts';
 
 export const ImportacaoController = {
   downloadTemplate: (req: Request, res: Response) => {
@@ -76,7 +77,17 @@ export const ImportacaoController = {
           const cpf = row['CPF'];
           const telefone = row['TELEFONE'] || '';
           const loja = row['LOJA'] || 'Matriz';
-          const tipo = row['TIPO_ACORDO'];
+          let rawTipo = String(row['TIPO_ACORDO'] || '').toLowerCase();
+          let tipo: TipoAcordo = 'emprestimo_vale'; // fallback
+          
+          if (rawTipo.includes('oto')) {
+            tipo = 'moto';
+          } else if (rawTipo.includes('usado') || rawTipo.includes('veiculo') || rawTipo.includes('carro')) {
+            tipo = 'veiculo_usado';
+          } else {
+            tipo = 'emprestimo_vale';
+          }
+
           const descricao = row['DESCRICAO'] || '';
           const valorTotal = parseFloat(row['VALOR_TOTAL']);
           const valorParcela = parseFloat(row['VALOR_PARCELA']);
