@@ -260,6 +260,38 @@ export const Repo = {
     }
   },
 
+  fixAcordosTipos: async (): Promise<{ success: boolean, modified: number }> => {
+    let modified = 0;
+    if (usePostgres && pool) {
+      // Fix PostgreSQL enums
+      try {
+        const client = await pool.connect();
+        const resMoto = await client.query(`UPDATE acordos SET tipo = 'moto' WHERE LOWER(tipo) LIKE '%oto%' AND tipo != 'moto'`);
+        const resVale = await client.query(`UPDATE acordos SET tipo = 'emprestimo_vale' WHERE (LOWER(tipo) LIKE '%vale%' OR LOWER(tipo) LIKE '%geral%' OR LOWER(tipo) LIKE '%empr%') AND tipo != 'emprestimo_vale'`);
+        const resFallback = await client.query(`UPDATE acordos SET tipo = 'emprestimo_vale' WHERE tipo NOT IN ('moto', 'emprestimo_vale', 'veiculo_usado')`);
+        modified = resMoto.rowCount + resVale.rowCount + resFallback.rowCount;
+        client.release();
+        return { success: true, modified };
+      } catch (e) {
+        console.error('Erro ao corrigir postgres:', e);
+        return { success: false, modified: 0 };
+      }
+    } else {
+      // Fix Local JSON
+      const db = readLocalDb();
+      db.acordos = db.acordos.map((a: any) => {
+        if(a.tipo === 'veiculo_usado' || a.tipo === 'moto' || a.tipo === 'emprestimo_vale') return a;
+        let lowerTipo = String(a.tipo).toLowerCase();
+        if(lowerTipo.includes('oto')) { a.tipo = 'moto'; modified++; }
+        else if(lowerTipo.includes('vale') || lowerTipo.includes('geral') || lowerTipo.includes('empr')) { a.tipo = 'emprestimo_vale'; modified++; }
+        else { a.tipo = 'emprestimo_vale'; modified++; }
+        return a;
+      });
+      if(modified > 0) writeLocalDb(db);
+      return { success: true, modified };
+    }
+  },
+
   deleteLoja: async (id: number): Promise<void> => {
     if (usePostgres && pool) {
       await pool.query('DELETE FROM lojas WHERE id = $1', [id]);

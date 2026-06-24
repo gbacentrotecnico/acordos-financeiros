@@ -77,36 +77,8 @@ async function startServer() {
   // Endpoint para forçar a correção do banco de dados (útil caso o script de startup falhe)
   app.get('/api/force-fix-db', async (req, res) => {
     try {
-      const fs = await import('fs/promises');
-      const dbPath = path.join(process.cwd(), 'data', 'db.json');
-      const dataStr = await fs.readFile(dbPath, 'utf8');
-      const db = JSON.parse(dataStr);
-      let modified = 0;
-      
-      db.acordos = db.acordos.map((a: any) => {
-        if(a.tipo === 'veiculo_usado' || a.tipo === 'moto' || a.tipo === 'emprestimo_vale') return a;
-        
-        let lowerTipo = String(a.tipo).toLowerCase();
-        let oldTipo = a.tipo;
-        
-        if(lowerTipo.includes('oto')) {
-          a.tipo = 'moto';
-          modified++;
-        } else if(lowerTipo.includes('vale') || lowerTipo.includes('geral') || lowerTipo.includes('empr')) {
-          a.tipo = 'emprestimo_vale';
-          modified++;
-        } else {
-          a.tipo = 'emprestimo_vale'; // default fallback
-          modified++;
-        }
-        console.log(`Corrigido: ${oldTipo} -> ${a.tipo}`);
-        return a;
-      });
-      
-      if(modified > 0) {
-        await fs.writeFile(dbPath, JSON.stringify(db, null, 2));
-      }
-      res.json({ success: true, message: `Banco corrigido. ${modified} registros alterados.` });
+      const result = await Repo.fixAcordosTipos();
+      res.json({ success: result.success, message: `Banco corrigido. ${result.modified} registros alterados.` });
     } catch(e: any) {
       res.status(500).json({ success: false, error: e.message });
     }
@@ -130,30 +102,9 @@ async function startServer() {
 
   // === AUTO-FIX BANCO DE DADOS (corrige enums inválidos) ===
   try {
-    const fs = await import('fs/promises');
-    const dbPath = path.join(process.cwd(), 'data', 'db.json');
-    const dataStr = await fs.readFile(dbPath, 'utf8');
-    const db = JSON.parse(dataStr);
-    let modified = false;
-    db.acordos = db.acordos.map((a: any) => {
-      if(a.tipo === 'veiculo_usado' || a.tipo === 'moto' || a.tipo === 'emprestimo_vale') return a;
-      
-      let lowerTipo = a.tipo.toLowerCase();
-      if(lowerTipo.includes('oto')) {
-        a.tipo = 'moto';
-        modified = true;
-      } else if(lowerTipo.includes('vale') || lowerTipo.includes('geral')) {
-        a.tipo = 'emprestimo_vale';
-        modified = true;
-      } else {
-        a.tipo = 'emprestimo_vale'; // default
-        modified = true;
-      }
-      return a;
-    });
-    if(modified) {
-      await fs.writeFile(dbPath, JSON.stringify(db, null, 2));
-      console.log('🔄 Banco de dados corrigido e enums atualizados com sucesso!');
+    const fixResult = await Repo.fixAcordosTipos();
+    if(fixResult.success && fixResult.modified > 0) {
+      console.log(`🔄 Banco de dados corrigido e enums atualizados com sucesso! Registros: ${fixResult.modified}`);
     }
   } catch(e) {
     console.error('Erro ao tentar auto-corrigir o banco:', e);
