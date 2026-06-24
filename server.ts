@@ -74,6 +74,44 @@ async function startServer() {
     res.json({ success: true, status: 'ok', environment: process.env.NODE_ENV || 'development' });
   });
 
+  // Endpoint para forçar a correção do banco de dados (útil caso o script de startup falhe)
+  app.get('/api/force-fix-db', async (req, res) => {
+    try {
+      const fs = await import('fs/promises');
+      const dbPath = path.join(process.cwd(), 'data', 'db.json');
+      const dataStr = await fs.readFile(dbPath, 'utf8');
+      const db = JSON.parse(dataStr);
+      let modified = 0;
+      
+      db.acordos = db.acordos.map((a: any) => {
+        if(a.tipo === 'veiculo_usado' || a.tipo === 'moto' || a.tipo === 'emprestimo_vale') return a;
+        
+        let lowerTipo = String(a.tipo).toLowerCase();
+        let oldTipo = a.tipo;
+        
+        if(lowerTipo.includes('oto')) {
+          a.tipo = 'moto';
+          modified++;
+        } else if(lowerTipo.includes('vale') || lowerTipo.includes('geral') || lowerTipo.includes('empr')) {
+          a.tipo = 'emprestimo_vale';
+          modified++;
+        } else {
+          a.tipo = 'emprestimo_vale'; // default fallback
+          modified++;
+        }
+        console.log(`Corrigido: ${oldTipo} -> ${a.tipo}`);
+        return a;
+      });
+      
+      if(modified > 0) {
+        await fs.writeFile(dbPath, JSON.stringify(db, null, 2));
+      }
+      res.json({ success: true, message: `Banco corrigido. ${modified} registros alterados.` });
+    } catch(e: any) {
+      res.status(500).json({ success: false, error: e.message });
+    }
+  });
+
   // === VITE MIDDLEWARE (Fluxo de Desenvolvimento React vs Produção Estática) ===
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
