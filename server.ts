@@ -10,6 +10,7 @@ import { UsuariosController } from './src/controllers/usuarios.ts';
 import { LojasController } from './src/controllers/lojas.ts';
 import { RankingController } from './src/controllers/ranking.ts';
 import { authMiddleware, roleMiddleware } from './src/middlewares/authMiddleware.ts';
+import { Repo } from './src/db/connection.ts';
 import multer from 'multer';
 
 async function startServer() {
@@ -49,6 +50,7 @@ async function startServer() {
   // 3. Acordos (Protegida)
   app.get('/api/acordos', authMiddleware, AcordosController.list);
   app.post('/api/acordos', authMiddleware, roleMiddleware(['master', 'diretor']), AcordosController.create);
+  app.put('/api/acordos/:id', authMiddleware, roleMiddleware(['master', 'diretor']), AcordosController.update);
   app.delete('/api/acordos/:id', authMiddleware, roleMiddleware(['master']), AcordosController.delete);
   app.get('/api/acordos/:id/parcelas', authMiddleware, AcordosController.getParcelas);
 
@@ -79,6 +81,16 @@ async function startServer() {
     try {
       const result = await Repo.fixAcordosTipos();
       res.json({ success: result.success, message: `Banco corrigido. ${result.modified} registros alterados.` });
+    } catch(e: any) {
+      res.status(500).json({ success: false, error: e.message });
+    }
+  });
+
+  // Endpoint para forçar a migração dos dados do db.json (632 linhas) para o PostgreSQL
+  app.get('/api/migrate-db', async (req, res) => {
+    try {
+      const result = await Repo.migrateFromJSON();
+      res.json(result);
     } catch(e: any) {
       res.status(500).json({ success: false, error: e.message });
     }

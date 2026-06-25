@@ -4,23 +4,16 @@ services:
   app:
     image: gbacentrotecnico/acordos:latest
     environment:
-      # A porta que o NodeJS usa dentro do container
       - PORT=3000
       - NODE_ENV=production
-      
-      # Informações de Segurança (Ajuste ou gere senhas fortes se necessário)
       - ADMIN_EMAIL=admin@gbamecanica.com.br
       - ADMIN_PASS=gbamecanica010203
-      - JWT_SECRET=chave_secreta_super_forte_para_producao_gbamecanica_2026
-      
-      # Banco de Dados
+      - JWT_SECRET=8fV2pL9mKq4xR7wN3zY6cXbV1aM5nH8jD0cT4vB9mF2lK7pQ3wE6rY1tU8iO
       - DATABASE_URL=postgres://postgres:gbamecanica010203@postgres:5432/acordos
       - DB_HOST=postgres
       - DB_USER=postgres
       - DB_PASSWORD=gbamecanica010203
       - DB_NAME=acordos
-      
-      # Integração Evolution API (WhatsApp) - Preencher depois
       - EVOLUTION_API_URL=
       - EVOLUTION_API_TOKEN=
       - EVOLUTION_INSTANCE=
@@ -33,15 +26,10 @@ services:
       mode: replicated
       replicas: 1
       labels:
-        # Habilita o Traefik
         - "traefik.enable=true"
-        # Rota para o domínio
         - "traefik.http.routers.acordos.rule=Host(`acordos.gbamecanica.com.br`)"
-        # Força o uso da rede websecure (HTTPS/443)
         - "traefik.http.routers.acordos.entrypoints=websecure"
-        # Utiliza o resolver Let's Encrypt configurado no seu Traefik
         - "traefik.http.routers.acordos.tls.certresolver=letsencryptresolver"
-        # Aponta o roteamento do Traefik para a porta 3000 do container Node
         - "traefik.http.services.acordos.loadbalancer.server.port=3000"
 
   postgres:    

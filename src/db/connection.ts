@@ -260,6 +260,45 @@ export const Repo = {
     }
   },
 
+  migrateFromJSON: async (): Promise<{ success: boolean, message: string }> => {
+    if (!usePostgres || !pool) return { success: false, message: 'Postgres não configurado' };
+    try {
+      const db = readLocalDb();
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        
+        for (const colab of db.colaboradores || []) {
+           await client.query('INSERT INTO colaboradores (id, nome, cpf, telefone, loja, cargo) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (id) DO NOTHING', [colab.id, colab.nome, colab.cpf, colab.telefone, colab.loja, colab.cargo]);
+        }
+        
+        for (const acordo of db.acordos || []) {
+           await client.query('INSERT INTO acordos (id, colaborador_id, tipo, descricao, valor_total, qtd_parcelas, status, data_acordo, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) ON CONFLICT (id) DO NOTHING', [acordo.id, acordo.colaborador_id, acordo.tipo, acordo.descricao, acordo.valor_total, acordo.qtd_parcelas, acordo.status, acordo.data_acordo, acordo.created_at || new Date().toISOString()]);
+        }
+        
+        for (const p of db.parcelas || []) {
+           await client.query('INSERT INTO parcelas (id, acordo_id, numero_parcela, valor, data_vencimento, status, data_desconto, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (id) DO NOTHING', [p.id, p.acordo_id, p.numero_parcela, p.valor, p.data_vencimento, p.status, p.data_desconto, p.created_at || new Date().toISOString()]);
+        }
+        
+        // Corrige as sequências do Postgres
+        await client.query(`SELECT setval('colaboradores_id_seq', (SELECT COALESCE(MAX(id), 1) FROM colaboradores))`);
+        await client.query(`SELECT setval('acordos_id_seq', (SELECT COALESCE(MAX(id), 1) FROM acordos))`);
+        await client.query(`SELECT setval('parcelas_id_seq', (SELECT COALESCE(MAX(id), 1) FROM parcelas))`);
+        
+        await client.query('COMMIT');
+        client.release();
+        return { success: true, message: 'Migração de JSON para Postgres concluída com sucesso!' };
+      } catch (e) {
+        await client.query('ROLLBACK');
+        client.release();
+        throw e;
+      }
+    } catch (e: any) {
+      console.error('Erro na migração:', e);
+      return { success: false, message: e.message };
+    }
+  },
+
   fixAcordosTipos: async (): Promise<{ success: boolean, modified: number }> => {
     let modified = 0;
     if (usePostgres && pool) {
@@ -456,6 +495,8 @@ export const Repo = {
       }).reverse();
     }
   },
+
+
 
   getAcordoById: async (id: number): Promise<Acordo | null> => {
     if (usePostgres && pool) {
@@ -1013,7 +1054,7 @@ export const Repo = {
       const db = readLocalDb();
       const acordo = db.acordos.find((a: any) => a.id === id);
       if (!acordo) throw new Error('Acordo não encontrado.');
-      if (data.tipo !== undefined) acordo.tipo = data.tipo;
+      if (data.tipo !== undefined) acordo.tipo = data.tipo as any;
       if (data.descricao !== undefined) acordo.descricao = data.descricao;
       writeLocalDb(db);
     }
