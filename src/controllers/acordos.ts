@@ -210,8 +210,8 @@ export const AcordosController = {
         return res.status(400).json({ success: false, error: 'ID do acordo inválido.' });
       }
 
-      const { tipo, descricao } = req.body;
-      await Repo.updateAcordo(acordoId, { tipo, descricao });
+      const { tipo, descricao, colaborador_id, valor_total, data_acordo, status } = req.body;
+      await Repo.updateAcordo(acordoId, { tipo, descricao, colaborador_id, valor_total, data_acordo, status });
 
       return res.json({
         success: true,

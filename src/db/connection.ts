@@ -1040,13 +1040,18 @@ export const Repo = {
     }
   },
 
-  updateAcordo: async (id: number, data: { tipo?: string; descricao?: string }): Promise<void> => {
+  updateAcordo: async (id: number, data: { tipo?: string; descricao?: string; colaborador_id?: number; valor_total?: number; data_acordo?: string; status?: string }): Promise<void> => {
     if (usePostgres && pool) {
       const fields: string[] = [];
       const values: any[] = [];
       let idx = 1;
       if (data.tipo !== undefined) { fields.push(`tipo = $${idx++}`); values.push(data.tipo); }
       if (data.descricao !== undefined) { fields.push(`descricao = $${idx++}`); values.push(data.descricao); }
+      if (data.colaborador_id !== undefined) { fields.push(`colaborador_id = $${idx++}`); values.push(data.colaborador_id); }
+      if (data.valor_total !== undefined) { fields.push(`valor_total = $${idx++}`); values.push(data.valor_total); }
+      if (data.data_acordo !== undefined) { fields.push(`data_acordo = $${idx++}`); values.push(data.data_acordo); }
+      if (data.status !== undefined) { fields.push(`status = $${idx++}`); values.push(data.status); }
+      
       if (fields.length === 0) return;
       values.push(id);
       await pool.query(`UPDATE acordos SET ${fields.join(', ')} WHERE id = $${idx}`, values);
@@ -1056,6 +1061,10 @@ export const Repo = {
       if (!acordo) throw new Error('Acordo não encontrado.');
       if (data.tipo !== undefined) acordo.tipo = data.tipo as any;
       if (data.descricao !== undefined) acordo.descricao = data.descricao;
+      if (data.colaborador_id !== undefined) acordo.colaborador_id = data.colaborador_id;
+      if (data.valor_total !== undefined) acordo.valor_total = data.valor_total;
+      if (data.data_acordo !== undefined) acordo.data_acordo = data.data_acordo;
+      if (data.status !== undefined) acordo.status = data.status as any;
       writeLocalDb(db);
     }
   },
@@ -1232,7 +1241,7 @@ export const Repo = {
         numero_parcela: 0,
         valor: valorAmortizado,
         data_vencimento: dataHoje,
-        status: 'Descontado',
+        status: 'Descontado' as any,
         data_desconto: dataHoje,
         created_at: new Date().toISOString()
       };

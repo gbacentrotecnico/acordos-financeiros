@@ -36,8 +36,10 @@ import RankingBoard from './components/RankingBoard.tsx';
 import LojasManager from './components/LojasManager.tsx';
 import { AmortizacaoModal } from './components/AmortizacaoModal.tsx';
 import { EditParcelaModal } from './components/EditParcelaModal.tsx';
+import { EditAcordoModal } from './components/EditAcordoModal.tsx';
+import { ConfirmDeleteModal } from './components/ConfirmDeleteModal.tsx';
 import { useAuth } from './contexts/AuthContext.tsx';
-import { LogOut, Settings, HandCoins } from 'lucide-react';
+import { LogOut, Settings, HandCoins, Edit3 } from 'lucide-react';
 
 // Helper de formatação de moeda brasileira
 const formatCurrency = (val: number) => {
@@ -99,6 +101,8 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'rh' | 'executivo' | 'quitados' | 'ranking' | 'config'>('rh');
   const [filtroPrevisao, setFiltroPrevisao] = useState<'hoje' | 'semana' | 'mes'>('mes');
   const [modalAmortizacaoOpen, setModalAmortizacaoOpen] = useState(false);
+  const [modalEditAcordoOpen, setModalEditAcordoOpen] = useState(false);
+  const [acordoToDelete, setAcordoToDelete] = useState<Acordo | null>(null);
   const [editParcelaData, setEditParcelaData] = useState<null | { id: number, num: number, valor: number, dataVencimento: string }>(null);
 
   const { user, token, loading: authLoading, logout } = useAuth();
@@ -314,31 +318,7 @@ export default function App() {
     }
   };
 
-  const handleDeleteAcordo = async (acordoId: number) => {
-    if (!token) return;
-    if (!window.confirm('Tem certeza que deseja EXCLUIR permanentemente este acordo e todas as suas parcelas? Esta ação não pode ser desfeita.')) return;
-    
-    try {
-      const res = await fetch(`/api/acordos/${acordoId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
-      
-      if (data.success) {
-        setSuccessMsg('Acordo excluído com sucesso!');
-        if (selectedAcordo?.id === acordoId) {
-          setSelectedAcordo(null);
-          setParcelas([]);
-        }
-        fetchAllData();
-      } else {
-        setErrorMsg(data.error || 'Erro ao excluir o acordo.');
-      }
-    } catch (err) {
-      setErrorMsg('Falha de rede ao excluir o acordo.');
-    }
-  };
+
 
   // CPF Input Format Mask
   const handleCpfChange = (val: string) => {
@@ -690,15 +670,35 @@ export default function App() {
                               </span>
                             </td>
                             <td className="px-5 py-4 text-center">
-                              <button 
-                                className={`p-1.5 rounded-lg border transition-all ${
-                                  selectedAcordo?.id === acord.id 
-                                    ? 'bg-indigo-600 text-white border-indigo-600' 
-                                    : 'bg-white text-slate-400 border-slate-250 hover:bg-slate-50 hover:text-slate-755'
-                                }`}
-                              >
-                                <ChevronRight className="h-4 w-4" />
-                              </button>
+                              {user.role === 'master' ? (
+                                <div className="flex items-center justify-center gap-2">
+                                  {acord.status !== 'quitado' && (
+                                    <button 
+                                      onClick={(e) => { e.stopPropagation(); selectAcordo(acord); setModalAmortizacaoOpen(true); }}
+                                      className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 transition-colors border border-emerald-100 shadow-sm"
+                                      title="Amortizar Acordo"
+                                    >
+                                      <HandCoins className="h-4 w-4" />
+                                    </button>
+                                  )}
+                                  <button 
+                                    onClick={(e) => { e.stopPropagation(); selectAcordo(acord); setModalEditAcordoOpen(true); }}
+                                    className="p-1.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:text-indigo-700 transition-colors border border-indigo-100 shadow-sm"
+                                    title="Editar Acordo"
+                                  >
+                                    <Edit3 className="h-4 w-4" />
+                                  </button>
+                                  <button 
+                                    onClick={(e) => { e.stopPropagation(); selectAcordo(acord); setAcordoToDelete(acord); }}
+                                    className="p-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 transition-colors border border-rose-100 shadow-sm"
+                                    title="Excluir Acordo"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className="text-slate-400 text-xs font-medium">--</div>
+                              )}
                             </td>
                           </tr>
                         ))
@@ -723,25 +723,6 @@ export default function App() {
                     {selectedAcordo && (
                       <div className="flex items-center gap-3">
                         <span className="text-xs font-bold text-slate-400">Total: {selectedAcordo.qtd_parcelas} parc.</span>
-                        {user.role === 'master' && selectedAcordo.status !== 'quitado' && (
-                          <button 
-                            onClick={() => setModalAmortizacaoOpen(true)}
-                            className="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 active:scale-95 shadow-sm"
-                          >
-                            <HandCoins className="h-4 w-4" />
-                            Amortizar
-                          </button>
-                        )}
-                        {user.role === 'master' && (
-                          <button 
-                            onClick={() => handleDeleteAcordo(selectedAcordo.id)}
-                            className="bg-rose-100 hover:bg-rose-200 text-rose-700 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 active:scale-95 shadow-sm"
-                            title="Excluir Acordo"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            Excluir
-                          </button>
-                        )}
                       </div>
                     )}
                   </div>
@@ -1142,6 +1123,41 @@ export default function App() {
             setSuccessMsg('Amortização realizada com sucesso!');
             fetchAllData();
             selectAcordo(selectedAcordo);
+          }}
+        />
+      )}
+
+      {/* MODAL EDITAR ACORDO */}
+      {modalEditAcordoOpen && selectedAcordo && (
+        <EditAcordoModal 
+          acordo={selectedAcordo}
+          colaboradores={colaboradores}
+          token={token!}
+          onClose={() => setModalEditAcordoOpen(false)}
+          onSuccess={() => {
+            setModalEditAcordoOpen(false);
+            setSuccessMsg('Acordo atualizado com sucesso!');
+            fetchAllData();
+            selectAcordo(selectedAcordo);
+          }}
+        />
+      )}
+
+      {/* MODAL CONFIRMAR EXCLUSÃO */}
+      {acordoToDelete && (
+        <ConfirmDeleteModal 
+          acordoId={acordoToDelete.id}
+          colaboradorNome={acordoToDelete.colaborador_nome || 'Colaborador'}
+          token={token!}
+          onClose={() => setAcordoToDelete(null)}
+          onSuccess={() => {
+            setAcordoToDelete(null);
+            setSuccessMsg('Acordo excluído com sucesso!');
+            if (selectedAcordo?.id === acordoToDelete.id) {
+              setSelectedAcordo(null);
+              setParcelas([]);
+            }
+            fetchAllData();
           }}
         />
       )}
