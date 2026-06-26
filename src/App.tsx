@@ -137,6 +137,10 @@ export default function App() {
     try {
       // 1. Indicadores
       const indRes = await fetch('/api/dashboard/indicadores', { headers });
+      if (indRes.status === 401 || indRes.status === 403) {
+        logout();
+        return;
+      }
       const indJson = await indRes.json();
       if (indJson.success) {
         setIndicadores(indJson.data);
@@ -151,6 +155,10 @@ export default function App() {
 
       // 3. Acordos
       const acRes = await fetch('/api/acordos', { headers });
+      if (acRes.status === 401 || acRes.status === 403) {
+        logout();
+        return;
+      }
       const acJson = await acRes.json();
       if (acJson.success) {
         setAcordos(acJson.data);
@@ -181,6 +189,10 @@ export default function App() {
       const res = await fetch(`/api/acordos/${acordoId}/parcelas`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      if (res.status === 401 || res.status === 403) {
+        logout();
+        return;
+      }
       const json = await res.json();
       if (json.success) {
         setParcelas(json.data);
